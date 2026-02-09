@@ -1,0 +1,896 @@
+[
+    {
+        "id": 1,
+        "city": "Madrid",
+        "name": "Madrid Luxury Suites 83",
+        "price_per_night": 101,
+        "amenities": [
+            "Climatisation",
+            "Vue sur mer"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 2,
+        "city": "Bangkok",
+        "name": "Bangkok Budget Inn 89",
+        "price_per_night": 160,
+        "amenities": [
+            "Piscine",
+            "Salle de sport",
+            "Petit-déjeuner inclus"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 3,
+        "city": "London",
+        "name": "London Luxury Suites 54",
+        "price_per_night": 217,
+        "amenities": [
+            "Petit-déjeuner inclus",
+            "Climatisation"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 4,
+        "city": "Bangkok",
+        "name": "Bangkok Boutique Hotel 97",
+        "price_per_night": 326,
+        "amenities": [
+            "Climatisation",
+            "Petit-déjeuner inclus",
+            "Vue sur mer",
+            "Salle de sport"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 5,
+        "city": "Berlin",
+        "name": "Berlin Luxury Suites 3",
+        "price_per_night": 452,
+        "amenities": [
+            "Climatisation",
+            "Petit-déjeuner inclus"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 6,
+        "city": "London",
+        "name": "London Hotel Resort 40",
+        "price_per_night": 437,
+        "amenities": [
+            "Salle de sport",
+            "Petit-déjeuner inclus"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 7,
+        "city": "Sydney",
+        "name": "Sydney Boutique Hotel 7",
+        "price_per_night": 307,
+        "amenities": [
+            "Spa",
+            "Petit-déjeuner inclus"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 8,
+        "city": "Lisbonne",
+        "name": "Lisbonne Luxury Suites 57",
+        "price_per_night": 394,
+        "amenities": [
+            "Spa",
+            "WiFi",
+            "Salle de sport"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 9,
+        "city": "New York",
+        "name": "New York Business Center 55",
+        "price_per_night": 348,
+        "amenities": [
+            "Vue sur mer",
+            "Spa"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 10,
+        "city": "Lisbonne",
+        "name": "Lisbonne Budget Inn 33",
+        "price_per_night": 382,
+        "amenities": [
+            "Salle de sport",
+            "Petit-déjeuner inclus",
+            "Spa",
+            "Piscine"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 11,
+        "city": "Sydney",
+        "name": "Sydney Boutique Hotel 11",
+        "price_per_night": 113,
+        "amenities": [
+            "Petit-déjeuner inclus",
+            "Vue sur mer"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 12,
+        "city": "New York",
+        "name": "New York Luxury Suites 29",
+        "price_per_night": 435,
+        "amenities": [
+            "Petit-déjeuner inclus",
+            "Spa",
+            "Climatisation"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 13,
+        "city": "Paris",
+        "name": "Paris Luxury Suites 47",
+        "price_per_night": 440,
+        "amenities": [
+            "Vue sur mer",
+            "Petit-déjeuner inclus"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 14,
+        "city": "Sydney",
+        "name": "Sydney Hotel Resort 10",
+        "price_per_night": 460,
+        "amenities": [
+            "Climatisation",
+            "Salle de sport",
+            "WiFi"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 15,
+        "city": "Berlin",
+        "name": "Berlin Hotel Resort 55",
+        "price_per_night": 138,
+        "amenities": [
+            "Petit-déjeuner inclus",
+            "Piscine",
+            "Spa",
+            "WiFi"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 16,
+        "city": "Paris",
+        "name": "Paris Luxury Suites 53",
+        "price_per_night": 156,
+        "amenities": [
+            "Piscine",
+            "Salle de sport",
+            "Spa",
+            "Climatisation"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 17,
+        "city": "Rome",
+        "name": "Rome Boutique Hotel 2",
+        "price_per_night": 438,
+        "amenities": [
+            "Spa",
+            "Climatisation",
+            "Petit-déjeuner inclus",
+            "WiFi"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 18,
+        "city": "Sydney",
+        "name": "Sydney Hotel Resort 50",
+        "price_per_night": 481,
+        "amenities": [
+            "Spa",
+            "Vue sur mer",
+            "WiFi"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 19,
+        "city": "Rome",
+        "name": "Rome Business Center 57",
+        "price_per_night": 347,
+        "amenities": [
+            "Vue sur mer",
+            "Salle de sport",
+            "Spa"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 20,
+        "city": "Sydney",
+        "name": "Sydney Luxury Suites 77",
+        "price_per_night": 161,
+        "amenities": [
+            "Piscine",
+            "Climatisation",
+            "Vue sur mer",
+            "Petit-déjeuner inclus"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 21,
+        "city": "London",
+        "name": "London Luxury Suites 94",
+        "price_per_night": 378,
+        "amenities": [
+            "WiFi",
+            "Salle de sport",
+            "Vue sur mer",
+            "Climatisation"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 22,
+        "city": "Paris",
+        "name": "Paris Luxury Suites 56",
+        "price_per_night": 497,
+        "amenities": [
+            "Salle de sport",
+            "WiFi",
+            "Vue sur mer"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 23,
+        "city": "Rome",
+        "name": "Rome Hotel Resort 34",
+        "price_per_night": 357,
+        "amenities": [
+            "Petit-déjeuner inclus",
+            "WiFi"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 24,
+        "city": "Bangkok",
+        "name": "Bangkok Luxury Suites 84",
+        "price_per_night": 266,
+        "amenities": [
+            "Piscine",
+            "Spa"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 25,
+        "city": "Tokyo",
+        "name": "Tokyo Boutique Hotel 24",
+        "price_per_night": 425,
+        "amenities": [
+            "Climatisation",
+            "Salle de sport",
+            "Spa"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 26,
+        "city": "Rome",
+        "name": "Rome Boutique Hotel 42",
+        "price_per_night": 426,
+        "amenities": [
+            "Climatisation",
+            "WiFi"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 27,
+        "city": "Paris",
+        "name": "Paris Budget Inn 100",
+        "price_per_night": 64,
+        "amenities": [
+            "WiFi",
+            "Spa",
+            "Salle de sport"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 28,
+        "city": "London",
+        "name": "London Business Center 62",
+        "price_per_night": 121,
+        "amenities": [
+            "Piscine",
+            "Vue sur mer",
+            "Petit-déjeuner inclus",
+            "Spa"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 29,
+        "city": "Bangkok",
+        "name": "Bangkok Hotel Resort 100",
+        "price_per_night": 373,
+        "amenities": [
+            "Vue sur mer",
+            "Piscine"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 30,
+        "city": "Rome",
+        "name": "Rome Hotel Resort 60",
+        "price_per_night": 253,
+        "amenities": [
+            "Vue sur mer",
+            "WiFi",
+            "Salle de sport"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 31,
+        "city": "Sydney",
+        "name": "Sydney Luxury Suites 7",
+        "price_per_night": 458,
+        "amenities": [
+            "Vue sur mer",
+            "Climatisation",
+            "Salle de sport"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 32,
+        "city": "New York",
+        "name": "New York Budget Inn 36",
+        "price_per_night": 422,
+        "amenities": [
+            "Piscine",
+            "WiFi",
+            "Spa"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 33,
+        "city": "New York",
+        "name": "New York Luxury Suites 51",
+        "price_per_night": 331,
+        "amenities": [
+            "Salle de sport",
+            "Spa",
+            "Piscine",
+            "Petit-déjeuner inclus"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 34,
+        "city": "London",
+        "name": "London Business Center 12",
+        "price_per_night": 388,
+        "amenities": [
+            "Petit-déjeuner inclus",
+            "Piscine",
+            "Vue sur mer"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 35,
+        "city": "Lisbonne",
+        "name": "Lisbonne Business Center 90",
+        "price_per_night": 418,
+        "amenities": [
+            "Piscine",
+            "Climatisation",
+            "Petit-déjeuner inclus"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 36,
+        "city": "New York",
+        "name": "New York Budget Inn 38",
+        "price_per_night": 164,
+        "amenities": [
+            "Spa",
+            "Vue sur mer",
+            "Climatisation"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 37,
+        "city": "Lisbonne",
+        "name": "Lisbonne Boutique Hotel 99",
+        "price_per_night": 341,
+        "amenities": [
+            "Piscine",
+            "Petit-déjeuner inclus",
+            "Vue sur mer"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 38,
+        "city": "Rome",
+        "name": "Rome Business Center 40",
+        "price_per_night": 445,
+        "amenities": [
+            "Salle de sport",
+            "Climatisation"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 39,
+        "city": "Tokyo",
+        "name": "Tokyo Luxury Suites 10",
+        "price_per_night": 392,
+        "amenities": [
+            "Petit-déjeuner inclus",
+            "Climatisation",
+            "WiFi",
+            "Vue sur mer"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 40,
+        "city": "Lisbonne",
+        "name": "Lisbonne Hotel Resort 56",
+        "price_per_night": 422,
+        "amenities": [
+            "Piscine",
+            "Petit-déjeuner inclus"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 41,
+        "city": "Bangkok",
+        "name": "Bangkok Luxury Suites 26",
+        "price_per_night": 200,
+        "amenities": [
+            "Piscine",
+            "WiFi"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 42,
+        "city": "Sydney",
+        "name": "Sydney Hotel Resort 8",
+        "price_per_night": 439,
+        "amenities": [
+            "Salle de sport",
+            "WiFi"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 43,
+        "city": "London",
+        "name": "London Business Center 16",
+        "price_per_night": 311,
+        "amenities": [
+            "Piscine",
+            "Vue sur mer",
+            "Climatisation",
+            "WiFi"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 44,
+        "city": "Bangkok",
+        "name": "Bangkok Budget Inn 69",
+        "price_per_night": 250,
+        "amenities": [
+            "Piscine",
+            "Petit-déjeuner inclus",
+            "Spa",
+            "Salle de sport"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 45,
+        "city": "London",
+        "name": "London Budget Inn 20",
+        "price_per_night": 500,
+        "amenities": [
+            "WiFi",
+            "Spa"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 46,
+        "city": "Lisbonne",
+        "name": "Lisbonne Budget Inn 90",
+        "price_per_night": 262,
+        "amenities": [
+            "WiFi",
+            "Spa"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 47,
+        "city": "New York",
+        "name": "New York Hotel Resort 66",
+        "price_per_night": 459,
+        "amenities": [
+            "Piscine",
+            "Climatisation"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 48,
+        "city": "Madrid",
+        "name": "Madrid Budget Inn 34",
+        "price_per_night": 145,
+        "amenities": [
+            "Spa",
+            "Vue sur mer",
+            "WiFi",
+            "Climatisation"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 49,
+        "city": "Paris",
+        "name": "Paris Budget Inn 58",
+        "price_per_night": 377,
+        "amenities": [
+            "Spa",
+            "Vue sur mer",
+            "Salle de sport"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 50,
+        "city": "Berlin",
+        "name": "Berlin Budget Inn 81",
+        "price_per_night": 101,
+        "amenities": [
+            "Vue sur mer",
+            "Piscine",
+            "Spa",
+            "Salle de sport"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 51,
+        "city": "Berlin",
+        "name": "Berlin Luxury Suites 33",
+        "price_per_night": 123,
+        "amenities": [
+            "Salle de sport",
+            "Petit-déjeuner inclus",
+            "Piscine",
+            "Spa"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 52,
+        "city": "Paris",
+        "name": "Paris Luxury Suites 42",
+        "price_per_night": 464,
+        "amenities": [
+            "Climatisation",
+            "WiFi"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 53,
+        "city": "Madrid",
+        "name": "Madrid Budget Inn 53",
+        "price_per_night": 434,
+        "amenities": [
+            "Spa",
+            "Salle de sport",
+            "Climatisation",
+            "Vue sur mer"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 54,
+        "city": "Rome",
+        "name": "Rome Boutique Hotel 7",
+        "price_per_night": 447,
+        "amenities": [
+            "Vue sur mer",
+            "Petit-déjeuner inclus",
+            "Salle de sport"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 55,
+        "city": "Tokyo",
+        "name": "Tokyo Business Center 84",
+        "price_per_night": 346,
+        "amenities": [
+            "Piscine",
+            "Petit-déjeuner inclus"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 56,
+        "city": "Tokyo",
+        "name": "Tokyo Business Center 57",
+        "price_per_night": 100,
+        "amenities": [
+            "WiFi",
+            "Piscine",
+            "Petit-déjeuner inclus"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 57,
+        "city": "Madrid",
+        "name": "Madrid Budget Inn 44",
+        "price_per_night": 325,
+        "amenities": [
+            "Spa",
+            "Salle de sport"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 58,
+        "city": "London",
+        "name": "London Boutique Hotel 96",
+        "price_per_night": 373,
+        "amenities": [
+            "Climatisation",
+            "Piscine",
+            "Salle de sport"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 59,
+        "city": "London",
+        "name": "London Boutique Hotel 18",
+        "price_per_night": 259,
+        "amenities": [
+            "Piscine",
+            "Vue sur mer"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    },
+    {
+        "id": 60,
+        "city": "Lisbonne",
+        "name": "Lisbonne Luxury Suites 87",
+        "price_per_night": 143,
+        "amenities": [
+            "WiFi",
+            "Spa",
+            "Climatisation",
+            "Piscine"
+        ],
+        "available_dates": [
+            "2026-03-01",
+            "2026-05-31"
+        ]
+    }
+]
