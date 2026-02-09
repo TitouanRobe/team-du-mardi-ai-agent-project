@@ -140,13 +140,9 @@ async def stream_search(request: Request, origin: str, destination: str, prefere
                     yield f"data: {json.dumps({'type': msg_type, 'message': log_msg})}\n\n"
 
         except Exception as e:
-            error_msg = str(e)
-            if "Resource exhausted" in error_msg or "429" in error_msg:
-                 yield f"data: {json.dumps({'type': 'log', 'message': '⚠️ Trafic intense sur l\'IA (Quota dépassé)... Tentative de récupération.'})}\n\n"
-            else:
-                 yield f"data: {json.dumps({'type': 'error', 'message': f'❌ Oups, petit souci : {error_msg}'})}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'message': f'❌ Oups, petit souci : {str(e)}'})}\n\n"
 
-        # Si jamais l'agent est muet (ou a crashé à cause des quotas), je tente ma technique de secours
+        # Si jamais l'agent est muet (ça arrive), je tente ma technique de secours
         if not agent_response:
              if hasattr(agent_module, 'last_search_text') and agent_module.last_search_text:
                  agent_response = agent_module.last_search_text
