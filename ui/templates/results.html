@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>TravelAgent.ai - Votre Itinéraire</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+    <div class="results-container">
+        <h1>✈️ Votre Plan de Voyage</h1>
+        <p class="subtitle">Recherche pour : <strong>{{ origin }}</strong> vers <strong>{{ destination }}</strong></p>
+
+        <div class="agent-response">
+            {{ response }}
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" class="btn-main" style="text-decoration: none;">Nouvelle recherche</a>
+        </div>
+    </div>
+</body>
+
+</html>

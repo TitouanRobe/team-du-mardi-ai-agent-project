@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Gestion de la soumission du formulaire
     travelForm.onsubmit = (e) => {
-        e.preventDefault();
+        // e.preventDefault(); // Removed to allow form submission
         console.log("Décollage de l'IA...");
         // Ici, on déclenchera l'animation de l'avion plus tard
     };
