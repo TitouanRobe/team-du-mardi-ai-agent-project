@@ -1,6 +1,6 @@
 :root {
     --primary: #38B6FF;
-    --primary-dark: #05668D;
+    --primary-dark: #2c5f82;
     --bg-overlay: rgba(0, 0, 0, 0.6);
     --white: #ffffff;
     --text: #2d3436;
@@ -84,6 +84,10 @@ h1 span {
     flex-direction: column;
 }
 
+.last-input {
+    grid-column: 1 / -1;
+}
+
 .input-group label {
     font-weight: 600;
     font-size: 0.9rem;
@@ -102,7 +106,7 @@ h1 span {
 .btn-submit {
     width: 100%;
     padding: 12px;
-    background: var(--primary);
+    background: var(--primary-dark);
     color: white;
     border: none;
     border-radius: 8px;
@@ -121,4 +125,40 @@ h1 span {
         transform: translateY(0);
         opacity: 1;
     }
+}
+
+.toggle-custom-options {
+    cursor: pointer;
+    color: var(--primary);
+    margin: 15px 0 10px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+}
+
+.toggle-custom-options .arrow {
+    margin-right: 8px;
+    transition: transform 0.3s ease;
+    display: inline-block;
+    font-size: 0.8rem;
+}
+
+.toggle-custom-options.active .arrow {
+    transform: rotate(90deg);
+}
+
+#advanced-options {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
+}
+
+#advanced-options.open {
+    max-height: 500px;
+    /* Adjust if content is larger */
+    opacity: 1;
+    transition: max-height 0.5s ease-in, opacity 0.3s ease-in;
 }

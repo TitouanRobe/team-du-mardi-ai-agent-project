@@ -79,37 +79,46 @@
                         <label>Date de Retour</label>
                         <input type="date" required>
                     </div>
-                    <div class="input-group">
-                        <label>Budget Avion Max (€)</label>
-                        <input type="number" placeholder="Ex: 800">
-                    </div>
-                    <div class="input-group">
-                        <label>Compagnie préférée</label>
-                        <input type="text" placeholder="Ex: Air France">
+
+                    <div class="input-group last-input">
+                        <label>Vos besoins et contraintes</label>
+                        <input type="text">
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <label>Prix Hotel Max (par nuit en €)</label>
-                    <input type="number" placeholder="Ex: 150">
+                <div class="toggle-custom-options" id="toggleOptions">
+                    <span class="arrow">▶</span> Options avancées
                 </div>
 
-                <div class="input-group">
-                    <label>Services</label>
-                    <input type="text" placeholder="WiFi, Spa, Piscine...">
+                <div id="advanced-options">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Budget Avion Max (€)</label>
+                            <input type="number" placeholder="Ex: 800">
+                        </div>
+                        <div class="input-group">
+                            <label>Compagnie préférée</label>
+                            <input type="text" placeholder="Ex: Air France">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Prix Hotel Max (par nuit en €)</label>
+                        <input type="number" placeholder="Ex: 150">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Services</label>
+                        <input type="text" placeholder="WiFi, Spa, Piscine...">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Activités</label>
+                        <input type="text" placeholder="Musées, Randonnées, Plages...">
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <label>Activités</label>
-                    <input type="text" placeholder="Musées, Randonnées, Plages...">
-                </div>
-
-                <div class="input-group">
-                    <label>Autres préférences</label>
-                    <textarea placeholder="Ex: Je suis vegan, je voyage avec un chien..."></textarea>
-                </div>
-
-                <button type="submit" class="btn-submit">Lancer l'IA </button>
+                <button type="submit" class="btn-submit">Lancer la recherche</button>
             </form>
         </div>
     </div>

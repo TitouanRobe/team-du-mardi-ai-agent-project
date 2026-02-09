@@ -29,4 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Décollage de l'IA...");
         // Ici, on déclenchera l'animation de l'avion plus tard
     };
+
+    // Gestion de l'affichage des options avancées
+    const toggleOptions = document.getElementById('toggleOptions');
+    const advancedOptions = document.getElementById('advanced-options');
+
+    if (toggleOptions && advancedOptions) {
+        toggleOptions.onclick = () => {
+            advancedOptions.classList.toggle('open');
+            toggleOptions.classList.toggle('active');
+        };
+    }
 });
