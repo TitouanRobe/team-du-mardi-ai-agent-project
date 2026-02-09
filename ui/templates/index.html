@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelAgent.ai - Planificateur</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+
+<body>
+
+    <div class="hero">
+        <h1>Ne cherchez plus votre voyage.<br><span>Planifiez-le.</span></h1>
+        <button id="openModal" class="btn-main">Commencer l'expérience 🚀</button>
+    </div>
+
+    <div id="modalOverlay" class="overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Renseignez selon vos envies</h2>
+                <button id="closeModal" class="close-btn">&times;</button>
+            </div>
+
+            <form id="travelForm">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Ville de Départ</label>
+                        <input type="text" placeholder="Ex: Paris" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Ville d'Arrivée</label>
+                        <input type="text" placeholder="Ex: Tokyo" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Date de Départ</label>
+                        <input type="date" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Date de Retour</label>
+                        <input type="date" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Budget Avion Max (€)</label>
+                        <input type="number" placeholder="Ex: 800">
+                    </div>
+                    <div class="input-group">
+                        <label>Compagnie préférée</label>
+                        <input type="text" placeholder="Ex: Air France">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Prix Hotel Max (par nuit en €)</label>
+                    <input type="number" placeholder="Ex: 150">
+                </div>
+
+                <div class="input-group">
+                    <label>Services</label>
+                    <input type="text" placeholder="WiFi, Spa, Piscine...">
+                </div>
+
+                <div class="input-group">
+                    <label>Activités</label>
+                    <input type="text" placeholder="Musées, Randonnées, Plages...">
+                </div>
+
+                <div class="input-group">
+                    <label>Autres préférences</label>
+                    <textarea placeholder="Ex: Je suis vegan, je voyage avec un chien..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">Lancer l'IA </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../static/scripts.js"></script>
+</body>
+
+</html>

@@ -24,7 +24,7 @@ def get_flights_between(origin: str, destination: str) -> List[Tuple]:
     return results
 
 root_agent = Agent(
-    model='gemini-3-flash-preview',
+    model='gemini-2.5-flash',
     name='root_agent',
     description='Donne moi un vol entre deux destinations demandée',
     instruction="tu est agent d'aéroport et des gens vienent te demander des vols d'avions entre deux destinations à une date précise. " \
