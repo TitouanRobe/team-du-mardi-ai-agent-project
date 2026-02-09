@@ -62,7 +62,7 @@ def search_flights(origin: str, destination: str) -> str:
 
 # Définition de l'agent
 root_agent = Agent(
-    model='gemini-2.0-flash', # Ou gemini-1.5-flash
+    model='gemini-2.5-flash', # Ou gemini-1.5-flash
     name='travel_agent',
     description='Expert en recherche de vols.',
     instruction="""
