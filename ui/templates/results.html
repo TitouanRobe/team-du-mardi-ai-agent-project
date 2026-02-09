@@ -4,20 +4,50 @@
 <head>
     <meta charset="UTF-8">
     <title>TravelAgent.ai - Votre Itinéraire</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
+    <header>
+        <div class="header-left">
+            <a href="/" style="text-decoration: none;">
+                <img src="/static/images/Logo.png" alt="Logo Travel Agent" class="logo">
+            </a>
+        </div>
+    </header>
+
     <div class="results-container">
         <h1>✈️ Votre Plan de Voyage</h1>
         <p class="subtitle">Recherche pour : <strong>{{ origin }}</strong> vers <strong>{{ destination }}</strong></p>
 
-        <div class="agent-response">
-            {{ response }}
+        {% if flights %}
+        <!-- Affichage "Stylé" sous forme de cartes -->
+        <div class="flights-grid">
+            {% for flight in flights %}
+            <div class="flight-card">
+                <div class="flight-airline">
+                    <div class="airline-logo-placeholder">✈️</div>
+                    <div class="flight-details">
+                        <h3>{{ flight.airline }}</h3>
+                        <div class="flight-time">🕒 Départ : {{ flight.departure }}</div>
+                    </div>
+                </div>
+                <div class="flight-price">
+                    <span class="price-tag">{{ flight.price }} €</span>
+                    <a href="#" class="btn-book">Réserver</a>
+                </div>
+            </div>
+            {% endfor %}
         </div>
+        {% else %}
+        <!-- Fallback : Affichage texte brut si le parsing échoue ou si l'agent blablate -->
+        <div class="no-flights">
+            <p>{{ response }}</p>
+        </div>
+        {% endif %}
 
-        <div style="text-align: center; margin-top: 30px;">
-            <a href="/" class="btn-main" style="text-decoration: none;">Nouvelle recherche</a>
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="/" class="btn-main">Nouvelle recherche</a>
         </div>
     </div>
 </body>

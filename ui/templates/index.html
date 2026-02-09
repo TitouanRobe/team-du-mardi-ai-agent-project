@@ -7,13 +7,27 @@
     <title>Travel Agent IA</title>
     <link rel="stylesheet" href="../static/style.css">
     <link rel="stylesheet" href="../static/modal.css">
+    <link rel="stylesheet" href="../static/loader.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/modal.css">
 </head>
 
 <body>
 
+    <div id="loading-overlay">
+        <div class="cloud c1">☁️</div>
+        <div class="cloud c2">☁️</div>
+        <div class="cityscape"></div>
+        <div class="plane-container">
+            <div class="plane"></div>
+        </div>
+        <div class="loading-text">L'IA prépare votre itinéraire...</div>
+        <!-- Console de logs intégrée au ciel -->
+        <div class="streaming-logs" id="logs"></div>
+    </div>
     <header>
         <div class="header-left">
-            <img src="../static/images/Logo.png" alt="Logo Travel Agent" class="logo">
+            <img src="/static/images/Logo.png" alt="Logo Travel Agent" class="logo">
             <nav>
                 <a href="#">Explorer</a>
                 <a href="#">Comment ça marche ?</a>
@@ -43,7 +57,7 @@
         <div class="main-card">
 
             <div class="card-image-container">
-                <img src="../static/images/Londres.png" alt="Big Ben Londres">
+                <img src="/static/images/Londres.png" alt="Big Ben Londres">
             </div>
 
             <div class="card-content">
@@ -54,6 +68,8 @@
 
     </main>
 
+
+
     <div id="modalOverlay" class="overlay">
         <div class="modal">
             <div class="modal-header">
@@ -61,28 +77,28 @@
                 <button id="closeModal" class="close-btn">&times;</button>
             </div>
 
-            <form id="travelForm">
+            <form id="travelForm" action="/search" method="post">
                 <div class="form-grid">
                     <div class="input-group">
                         <label>Ville de Départ</label>
-                        <input type="text" placeholder="Ex: Paris" required>
+                        <input type="text" name="origin" placeholder="Ex: Paris" required>
                     </div>
                     <div class="input-group">
                         <label>Ville d'Arrivée</label>
-                        <input type="text" placeholder="Ex: Tokyo" required>
+                        <input type="text" name="destination" placeholder="Ex: Tokyo" required>
                     </div>
                     <div class="input-group">
                         <label>Date de Départ</label>
-                        <input type="date" required>
+                        <input type="date">
                     </div>
                     <div class="input-group">
                         <label>Date de Retour</label>
-                        <input type="date" required>
+                        <input type="date">
                     </div>
 
                     <div class="input-group last-input">
                         <label>Vos besoins et contraintes</label>
-                        <input type="text">
+                        <input type="text" name="preferences">
                     </div>
                 </div>
 
@@ -120,10 +136,13 @@
 
                 <button type="submit" class="btn-submit">Lancer la recherche</button>
             </form>
+
+            <div id="resultContainer"
+                style="display:none; margin-top:15px; padding:15px; background: #fff; border-radius: 8px;"></div>
         </div>
     </div>
 
+    <script src="/static/scripts.js"></script>
 </body>
 
 </html>
-<script src="../static/scripts.js"></script>

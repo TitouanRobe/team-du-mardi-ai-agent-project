@@ -191,3 +191,283 @@ h2 {
         width: 80%;
     }
 }
+
+/* --- RESULT CARD STYLES --- */
+.results-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 40px;
+}
+
+.flights-grid {
+    display: flex;
+    flex-direction: column;
+    /* Liste verticale de cards */
+    gap: 20px;
+}
+
+.flight-card {
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    /* Ombre douce */
+    padding: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid var(--primary);
+    /* Petite touche de couleur */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flight-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.flight-airline {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-align: left;
+}
+
+.airline-logo-placeholder {
+    width: 50px;
+    height: 50px;
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+.flight-details h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.3rem;
+    text-shadow: none;
+    /* Reset du shadow global */
+}
+
+.flight-time {
+    color: #888;
+    margin-top: 5px;
+    font-size: 0.95rem;
+}
+
+.flight-price-action {
+    text-align: right;
+}
+
+.price-tag {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--secondary);
+    margin-bottom: 10px;
+}
+
+.btn-book {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+    text-decoration: none;
+}
+
+.btn-book:hover {
+    background-color: var(--secondary);
+}
+
+.no-flights {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ffeeba;
+    margin-bottom: 20px;
+}
+
+.btn-main {
+    background-color: var(--secondary);
+    color: var(--white);
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-weight: bold;
+    transition: background 0.3s;
+    display: inline-block;
+}
+
+.btn-main:hover {
+    background-color: var(--primary);
+}
+
+/* --- LOADER --- */
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    z-index: 9999;
+    display: none;
+    /* Caché par défaut */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader-spinner {
+    border: 8px solid #f3f3f3;
+    /* Light grey */
+    border-top: 8px solid var(--primary);
+    /* Blue */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+.loader-text {
+    font-size: 1.5rem;
+    color: var(--secondary);
+    font-weight: bold;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- MERGED LOADER STYLES --- */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 100%);
+    z-index: 10000;
+    /* Top priority */
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#loaderOverlay {
+    display: none !important;
+    /* On désactive l'ancien loader simple au profit du nouveau avec nuages */
+}
+
+/* ... (Keep cloud/plane animations) ... */
+
+/* --- STREAMING LOGS (ADAPTED FOR CLOUD OVERLAY) --- */
+.streaming-logs {
+    margin-top: 220px;
+    /* Un peu plus haut */
+    width: 85%;
+    max-width: 600px;
+    height: 250px;
+
+    /* GLASSMORPHISM STYLE */
+    background: rgba(255, 255, 255, 0.85);
+    /* Blanc translucide */
+    backdrop-filter: blur(10px);
+    /* Flou d'arrière-plan */
+    border: 1px solid rgba(255, 255, 255, 0.9);
+
+    color: var(--secondary);
+    /* Bleu foncé pro */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Police moderne */
+    font-size: 0.95rem;
+
+    padding: 20px;
+    border-radius: 20px;
+    /* Coins très arrondis */
+    overflow-y: auto;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    /* Ombre douce colorée */
+
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10001;
+    /* Au-dessus des nuages */
+    position: relative;
+
+    /* Scrollbar invisible mais fonctionnelle */
+    scrollbar-width: none;
+}
+
+.streaming-logs::-webkit-scrollbar {
+    display: none;
+}
+
+.log-entry {
+    opacity: 0;
+    animation: slideIn 0.4s ease-out forwards;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    border-left: 4px solid var(--primary);
+    /* Ligne bleue à gauche */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+    font-weight: 500;
+}
+
+.log-entry:hover {
+    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.log-entry.tool {
+    border-left-color: #F4A261;
+    /* Orange doux pour les outils */
+    background: rgba(244, 162, 97, 0.1);
+    color: #E76F51;
+}
+
+.log-entry.error {
+    border-left-color: #E63946;
+    /* Rouge moderne */
+    background: rgba(230, 57, 70, 0.1);
+    color: #D62828;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
