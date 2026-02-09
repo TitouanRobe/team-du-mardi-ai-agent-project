@@ -39,21 +39,81 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (travelForm) {
         travelForm.onsubmit = (e) => {
-            e.preventDefault(); // Empêche le rechargement immédiat
-            console.log("🚀 Lancement de la demande...");
+            e.preventDefault(); // Empêche le rechargement
+            console.log("🚀 Lancement de la demande Streaming...");
 
-            // A. ON LANCE L'ANIMATION
-            modal.style.display = 'none';          // On cache le formulaire
+            // 1. AFFICHER L'ANIMATION + LOGS
+            const startTime = Date.now(); // On note l'heure de départ
+            modal.style.display = 'none';
             if (loadingOverlay) {
-                loadingOverlay.style.display = 'flex'; // On affiche l'avion en plein écran
+                loadingOverlay.style.display = 'flex';
+            }
+            const logsContainer = document.getElementById('logs');
+            if (logsContainer) logsContainer.innerHTML = '<div>Connnexion au satellite...</div>';
+
+            // 2. RÉCUPÉRATION DES PARAMÈTRES
+            const formData = new FormData(travelForm);
+            const params = new URLSearchParams();
+            for (const pair of formData.entries()) {
+                params.append(pair[0], pair[1]);
             }
 
-            // B. ON SIMULE UN TEMPS D'ATTENTE (Ex: 3 secondes pour l'effet)
-            // Puis on soumet VRAIMENT le formulaire au serveur
-            setTimeout(() => {
-                console.log("🛬 Redirection vers les résultats...");
-                e.target.submit(); // Soumission manuelle du formulaire (recharge la page vers /search)
-            }, 3000);
+            // 3. LANCEMENT DU STREAM (EventSource)
+            const url = `/stream_search?${params.toString()}`;
+            const eventSource = new EventSource(url);
+
+            eventSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+
+                    // --- A. GESTION DES LOGS ---
+                    if (data.type === 'log' || data.type === 'tool' || data.type === 'error') {
+                        const div = document.createElement('div');
+                        div.className = `log-entry ${data.type}`;
+                        div.textContent = `> ${data.message}`;
+                        if (logsContainer) {
+                            logsContainer.appendChild(div);
+                            logsContainer.scrollTop = logsContainer.scrollHeight; // Auto-scroll
+                        }
+                    }
+
+                    // --- B. ARRIVÉE / MODIFICATION DE PAGE ---
+                    else if (data.type === 'complete') {
+                        console.log("🛬 Terminé ! Affichage des résultats.");
+                        eventSource.close();
+
+                        // CALCUL DU DELAI RESTANT (Minimum 6 secondes d'animation)
+                        const elapsedTime = Date.now() - startTime;
+                        const remainingTime = Math.max(0, 6000 - elapsedTime);
+
+                        console.log(`Temps écoulé: ${elapsedTime}ms. Attente de: ${remainingTime}ms.`);
+
+                        setTimeout(() => {
+                            // Option 1 : Remplacer le contenu de la page (effet SPA)
+                            document.open();
+                            document.write(data.html);
+                            document.close();
+
+                            // MAJ de l'URL pour faire "propre" (Optionnel)
+                            // window.history.pushState({}, "Résultats", "/search");
+                        }, remainingTime);
+                    }
+
+                } catch (err) {
+                    console.error("Erreur parsing SSE:", err);
+                }
+            };
+
+            eventSource.onerror = (err) => {
+                console.error("Erreur EventSource:", err);
+                eventSource.close();
+                if (logsContainer) {
+                    const div = document.createElement('div');
+                    div.style.color = "red";
+                    div.textContent = "> ❌ Connexion perdue.";
+                    logsContainer.appendChild(div);
+                }
+            };
         };
     }
 });

@@ -1,9 +1,11 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 import uvicorn
 import os
+import json
+import asyncio
 from dotenv import load_dotenv
 
 # Charge le fichier .env
@@ -13,6 +15,7 @@ from test_agent.agent import root_agent
 import test_agent.agent as agent_module # Import du module pour le hack (Sauvegarde)
 from google.adk.runners import Runner, RunConfig 
 from google.adk.sessions import InMemorySessionService
+import re
 
 # --- Classes de compatibilité ---
 class Part:
@@ -35,6 +38,148 @@ templates = Jinja2Templates(directory="ui/templates")
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/stream_search")
+async def stream_search(request: Request, origin: str, destination: str, preferences: str = None):
+    print(f"\n📡 NOUVELLE REQUÊTE STREAMING : {origin} -> {destination}")
+    
+    # Reset du hack
+    if hasattr(agent_module, 'last_search_text'):
+        agent_module.last_search_text = ""
+
+    async def event_generator():
+        # 0. Initialisation
+        yield f"data: {json.dumps({'type': 'log', 'message': f'🔌 Connexion au serveur établie...'})}\n\n"
+        await asyncio.sleep(0.5)
+        
+        # 1. Message
+        prompt_text = f"Trouve moi un vol de {origin} à {destination}. Préf: {preferences or 'Aucune'}"
+        user_msg = Message(role="user", parts=[Part(text=prompt_text)])
+        
+        yield f"data: {json.dumps({'type': 'log', 'message': f'👤 User: {prompt_text}'})}\n\n"
+
+        # 2. Setup Session (Mock ID for demo)
+        user_id = "user_stream"
+        session_id = "session_stream"
+        app_name = "travel_agent"
+
+        try:
+            await session_service.create_session(
+                user_id=user_id, 
+                session_id=session_id, 
+                app_name=app_name
+            )
+        except Exception:
+            pass 
+
+        yield f"data: {json.dumps({'type': 'log', 'message': f'🧠 Initialisation de l\'agent {app_name}...'})}\n\n"
+
+        # 3. Runner
+        runner = Runner(
+            agent=root_agent, 
+            app_name=app_name, 
+            session_service=session_service
+        )
+        
+        run_config = RunConfig(max_llm_calls=10)
+        
+        # Lancement (Note: runner.run est synchrone dans cette version de l'ADK, mais on va essayer de capturer les étapes si possible)
+        # S'il est 100% bloquant, on aura les logs "en bloc" à la fin, sauf si l'ADK stream lui-même.
+        # Pour une démo parfaite, on va simuler un peu de "streaming" avant l'appel réel ou espérer que le générateur soit itératif.
+        
+        yield f"data: {json.dumps({'type': 'log', 'message': '🤖 L\'agent réfléchit...'})}\n\n"
+
+        # On appelle le runner
+        response_generator = runner.run(
+            user_id=user_id,
+            session_id=session_id,
+            new_message=user_msg,
+            run_config=run_config
+        )
+
+        agent_response = ""
+        
+        # 4. Lecture de la boucle
+        try:
+            for event in response_generator:
+                await asyncio.sleep(0.1) # Petit délai pour l'effet visuel streaming
+                
+                # Analyse de l'événement pour les logs
+                log_msg = ""
+                msg_type = "log"
+                
+                # Cas Function Call (Outil)
+                if hasattr(event, 'function_call'):
+                    log_msg = f"🛠️ CALL TOOL: {event.function_call.name}"
+                    msg_type = "tool"
+                elif hasattr(event, 'parts'):
+                     for part in event.parts:
+                        if hasattr(part, 'function_call'):
+                             log_msg = f"🛠️ CALL TOOL: {part.function_call.name}"
+                             msg_type = "tool"
+                        elif hasattr(part, 'text') and part.text:
+                             # C'est du texte de pensée ou de réponse
+                             log_msg = f"💭 {part.text[:50]}..."
+                             agent_response += part.text
+
+                # Cas retour d'outil (Function Response)
+                if hasattr(event, 'function_response'):
+                    log_msg = f"🔙 TOOL RETURN: {event.function_response.name}"
+                
+                # Cas réponse finale textuelle
+                if hasattr(event, 'text') and event.text:
+                    if log_msg == "": # Si pas déjà loggé
+                        log_msg = f"📝 {event.text[:50]}..."
+                    agent_response += event.text
+                
+                # Cas "output" final
+                if hasattr(event, 'output') and hasattr(event.output, 'text'):
+                     log_msg = "🏁 Réponse finale générée"
+                     agent_response += event.output.text
+
+                if log_msg:
+                    yield f"data: {json.dumps({'type': msg_type, 'message': log_msg})}\n\n"
+
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': f'❌ Erreur: {str(e)}'})}\n\n"
+
+        # Fallback si vide
+        if not agent_response:
+             if hasattr(agent_module, 'last_search_text') and agent_module.last_search_text:
+                 agent_response = agent_module.last_search_text
+                 yield f"data: {json.dumps({'type': 'log', 'message': '⚠️ Récupération via variable globale.'})}\n\n"
+
+        # 5. Parsing & Construction du HTML final
+        flights = []
+        pattern = r"-\s+(.*?)\s+départ à\s+(.*?)\s+pour\s+(.*?)€"
+        matches = re.finditer(pattern, agent_response)
+        for match in matches:
+            flights.append({
+                "airline": match.group(1).strip(),
+                "departure": match.group(2).strip(),
+                "price": match.group(3).strip()
+            })
+            
+        yield f"data: {json.dumps({'type': 'log', 'message': f'✅ {len(flights)} vols trouvés.'})}\n\n"
+        
+        # Rendu du template results.html en string
+        # Astuce : On rend le template complet et le client remplacera tout le body
+        final_html = templates.get_template("results.html").render({
+            "request": request, 
+            "response": agent_response,
+            "origin": origin,
+            "destination": destination,
+            "flights": flights
+        })
+        
+        # Envoi de l'événement "complete" avec le HTML
+        # On encode le HTML en JSON pour éviter les problèmes de saut de ligne dans SSE
+        yield f"data: {json.dumps({'type': 'complete', 'html': final_html})}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+# ... (Keep existing handle_search for backward compatibility if needed, or replace it)
+# We keep handle_search but the frontend will use stream_search now.
 
 @app.post("/search", response_class=HTMLResponse)
 async def handle_search(
@@ -140,8 +285,6 @@ async def handle_search(
     # 6. Parsing de la réponse pour l'affichage "Classe"
     import re
     flights = []
-    # Pattern pour capturer : Compagnie, Date/Heure, Prix
-    # Exemple : "- United départ à 2026-04-17 02:00 pour 1131.0€"
     pattern = r"-\s+(.*?)\s+départ à\s+(.*?)\s+pour\s+(.*?)€"
     
     matches = re.finditer(pattern, agent_response)
