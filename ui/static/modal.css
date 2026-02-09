@@ -122,3 +122,37 @@ h1 span {
         opacity: 1;
     }
 }
+
+/* Page de résultats */
+.results-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    color: var(--text);
+    text-align: left;
+}
+
+.results-container h1 {
+    color: var(--primary-dark);
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.subtitle {
+    text-align: center;
+    color: #636e72;
+    margin-bottom: 30px;
+}
+
+.agent-response {
+    background: #f1f2f6;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 5px solid var(--primary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    /* Preserve formatting from agent */
+}
