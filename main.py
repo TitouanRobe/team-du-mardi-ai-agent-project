@@ -123,13 +123,12 @@ async def stream_search(request: Request, origin: str, destination: str, prefere
                              log_msg = f"📝 Réponse : {part.text[:50]}..."
                              agent_response += part.text
 
-                # Si j'ai capté un truc intéressant, je l'envoie au front-end
                 if log_msg:
                     yield f"data: {json.dumps({'type': msg_type, 'message': log_msg})}\n\n"
 
         except Exception as e:
             print(f"DEBUG EXCEPTION: {e}")
-            yield f"data: {json.dumps({'type': 'error', 'message': f'❌ Oups, petit souci : {str(e)}'})}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'message': f'erreur : {str(e)}'})}\n\n"
 
 
         flights = []
@@ -156,7 +155,6 @@ async def stream_search(request: Request, origin: str, destination: str, prefere
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
-# La route POST classique (gardée au cas où, mais on utilise le stream maintenant)
 @app.post("/search", response_class=HTMLResponse)
 async def handle_search(
     request: Request,
