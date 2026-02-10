@@ -34,7 +34,7 @@
 
         <div class="tabs-header">
             <button class="tab-btn active" onclick="openTab(event, 'vols')">✈️ Vols ({{ flights|length }})</button>
-            <button class="tab-btn" onclick="openTab(event, 'hotels')">🏨 Hôtels (0)</button>
+            <button class="tab-btn" onclick="openTab(event, 'hotels')">🏨 Hôtels ({{ hotels|length }})</button>
             <button class="tab-btn" onclick="openTab(event, 'activites')">🏛️ Activités ({{ activities|length
                 }})</button>
         </div>
@@ -56,7 +56,21 @@
         </div>
 
         <div id="hotels" class="tab-content">
-            <p class="empty-msg">Recherche d'hôtels bientôt disponible...</p>
+            {% if hotels %}
+            {% for hotel in hotels %}
+            <div class="result-card hotel-card">
+                <div class="card-info">
+                    <strong>{{ hotel.name }}</strong>
+                    <p>📍 {{ hotel.city }}</p>
+                    <p>🛎️ {{ hotel.amenities }}</p>
+                    <p>📅 Disponible du {{ hotel.available_start }} au {{ hotel.available_end }}</p>
+                </div>
+                <div class="card-price">{{ hotel.price }}€/nuit</div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="empty-msg">Aucun hôtel trouvé.</p>
+            {% endif %}
         </div>
 
         <div id="activites" class="tab-content">

@@ -70,6 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const budget = document.getElementById('budget_max').value;
             const airline = document.getElementById('airline').value;
             const activities = document.getElementById('activities').value;
+            const hotelBudget = document.getElementById('hotel_budget_max').value;
+            const hotelAmenities = document.getElementById('amenities').value;
 
             // On construit l'URL avec tous les paramètres
             // Note: encodeURIComponent est une bonne pratique pour éviter les bugs avec des espaces ou caractères spéciaux
@@ -80,7 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 budget_max: budget,
                 airline: airline,
                 date: dateDept,
-                activities: activities
+                activities: activities,
+                hotel_budget_max: hotelBudget,
+                amenities: hotelAmenities
             });
 
             const url = `/stream_search?${params.toString()}`;

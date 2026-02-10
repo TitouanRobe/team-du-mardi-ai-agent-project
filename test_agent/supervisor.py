@@ -1,39 +1,49 @@
 from google.adk.agents.llm_agent import Agent
-# On importe les agents spécialisés depuis les autres fichiers du dossier
 from .flight_agent import flight_agent
 from .hotel_agent import hotel_agent
 from .activity_agent import activity_agent
 
-# Le Supervisor est l'agent "root" que main.py va appeler
 root_agent = Agent(
-    model='gemini-2.0-flash',
+    model='gemini-2.0-flash', 
     name='Travel_Supervisor',
-    description='Coordonne la planification de voyage (vols, hôtels, activités).',
+    description='Coordonne la planification de voyage.',
     instruction="""
-    MISSION : Créer un itinéraire complet en appelant les agents nécessaires.
+    Tu es un ROBOT D'EXÉCUTION. Tu n'as AUCUNE liberté de choix.
     
-    PROCESSUS OBLIGATOIRE (NE SAUTE AUCUNE ÉTAPE) :
+    PROCÉDURE OBLIGATOIRE (À EXÉCUTER DANS CET ORDRE) :
     
-    1️⃣ Appelle FlightAgent → Récupère la ville de destination
-       IMPORTANT : FlightAgent te donnera une liste de vols. GARDE CETTE LISTE.
+    ÉTAPE 1 : Appelle OBLIGATOIREMENT FlightAgent
+    - Paramètres : origin, destination (même si destination est vide/inconnue)
+    - Tu DOIS l'appeler même si l'utilisateur ne parle pas de vols
     
-    2️⃣ SI le client demande "activités" ou "restaurants" ou "manger" :
-       Appelle ActivityAgent avec la ville trouvée en 1️⃣
-       IMPORTANT : ActivityAgent te donnera une liste. GARDE CETTE LISTE.
+    ÉTAPE 2 : Appelle OBLIGATOIREMENT ActivityAgent  
+    - Paramètre : city (utilise la destination, ou l'origin si pas de destination)
+    - Tu DOIS l'appeler même si l'utilisateur ne demande pas d'activités
     
-    3️⃣ SI le client parle d'"hôtel" :
-       Appelle HotelAgent
+    ÉTAPE 3 : Appelle OBLIGATOIREMENT HotelAgent
+    - Paramètre : city (utilise la destination, ou l'origin si pas de destination)
+    - Tu DOIS l'appeler même si l'utilisateur ne demande pas d'hôtels
     
-    ⚠️ RÉPONSE FINALE OBLIGATOIRE (après tous les appels) :
-    Tu DOIS afficher TOUTES les listes que tu as reçues, dans cet ordre :
+    ÉTAPE 4 : Formate la réponse EXACTEMENT comme ceci :
     
-    [COPIE ICI EXACTEMENT ce que FlightAgent t'a répondu - garde tous les tirets et détails]
+    ### DEBUT_VOLS ###
+    [Résultat COMPLET de FlightAgent - copie-colle TOUT]
+    ### FIN_VOLS ###
     
-    -----------------------------------
+    ### DEBUT_ACTIVITES ###
+    [Résultat COMPLET de ActivityAgent - copie-colle TOUT]
+    ### FIN_ACTIVITES ###
     
-    [COPIE ICI EXACTEMENT ce que ActivityAgent t'a répondu - garde tous les détails]
+    ### DEBUT_HOTELS ###
+    [Résultat COMPLET de HotelAgent - copie-colle TOUT]
+    ### FIN_HOTELS ###
     
-    INTERDICTION : Ne résume RIEN. Ne transforme RIEN. Copie-colle les réponses brutes.
+    RÈGLES ABSOLUES :
+    - Tu DOIS appeler LES 3 AGENTS à CHAQUE fois, sans exception
+    - Les 3 sections ### DEBUT/FIN ### doivent TOUJOURS être présentes
+    - Ne résume JAMAIS, copie-colle les réponses complètes
+    - Si un agent dit "Aucun résultat", copie ce message exactement
+    - N'ajoute RIEN en dehors des balises ### DEBUT/FIN ###
     """,
     sub_agents=[flight_agent, hotel_agent, activity_agent]
 )

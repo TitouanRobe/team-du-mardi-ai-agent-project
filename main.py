@@ -6,17 +6,18 @@ import uvicorn
 import os
 import json
 import asyncio
+import re
 from dotenv import load_dotenv
 
-# On charge les variables d'environnement (API Key, etc.)
 load_dotenv()
 
-from test_agent.supervisor import root_agent
+# Import des 3 agents directement (plus de superviseur!)
+from test_agent.flight_agent import flight_agent
+from test_agent.activity_agent import activity_agent
+from test_agent.hotel_agent import hotel_agent
 from google.adk.runners import Runner, RunConfig 
 from google.adk.sessions import InMemorySessionService  
-import re
 
-# --- Mes petites classes pour que tout le monde se comprenne ---
 class Part:
     def __init__(self, text: str):
         self.text = text
@@ -25,19 +26,15 @@ class Message:
     def __init__(self, role: str, parts: list):
         self.role = role
         self.parts = parts
-# --------------------------------
 
-# Je stocke les sessions en mémoire pour l'instant
 session_service = InMemorySessionService()
 
 app = FastAPI()
-# Je configure mes dossiers pour le CSS, les images et les templates HTML
 app.mount("/static", StaticFiles(directory="ui/static"), name="static")
 templates = Jinja2Templates(directory="ui/templates")
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    # La page d'accueil toute belle
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/stream_search")
@@ -49,133 +46,139 @@ async def stream_search(
     budget_max: str = None, 
     airline: str = None,
     date: str = None,
-    activities: str = None  # <-- Nouveau paramètre
+    activities: str = None,
+    hotel_budget_max: str = None,
+    amenities: str = None
     ):
-    print(f"\n📡 NOUVELLE REQUÊTE STREAMING : {origin} -> {destination}")
     
-    # Je m'assure que la variable de secours est bien vide avant de commencer
-
+    print(f"\n📡 NOUVELLE REQUÊTE : {origin} -> {destination} | Activités: {activities} | Hôtels: {amenities}")
 
     async def event_generator():
-        yield f"data: {json.dumps({'type': 'log', 'message': f'🔌 Liaison satellite établie...'})}\n\n"
+        yield f"data: {json.dumps({'type': 'log', 'message': f'🔌 Connexion...'})}\n\n"
         await asyncio.sleep(0.5)
         
-        # On construit un ordre de mission clair et impératif
-        # Dans main.py, modifie la construction du prompt :
-        # Dans ton main.py, à l'intérieur de event_generator()
-        prompt_text = "ORDRE DE MISSION PRIORITAIRE :\n"
-        prompt_text += f"1. [ACTION_VOLS] : Trouve des vols de {origin} vers {destination or 'nimporte où'}\n"
-
-        if activities:
-            target = destination if destination else origin
-            prompt_text += f"2. [ACTION_ACTIVITES] : Cherche impérativement des {activities} à {target}\n"
-
-        prompt_text += "\nCONSIGNE : Exécute l'ACTION 1, puis l'ACTION 2 sans t'arrêter entre les deux."
-            
-        if budget_max:
-            prompt_text += f"CONTRAINTE BUDGET : Maximum {budget_max}€ pour l'avion\n"
-            
-        if preferences:
-            prompt_text += f"NOTES : {preferences}\n"
-
-        user_msg = Message(role="user", parts=[Part(text=prompt_text)])
+        target = destination if destination else origin
         
-        yield f"data: {json.dumps({'type': 'log', 'message': f'👤 Client: {prompt_text}'})}\n\n"
-
+        # --- CONFIGURATION SESSION ---
         user_id = "user_stream"
         session_id = "session_stream"
         app_name = "travel_agent"
 
-        try:    
-            await session_service.create_session(
-                user_id=user_id, 
-                session_id=session_id, 
-                app_name=app_name
-            )
-        except Exception:
-            pass # Si la session existe déjà, c'est pas grave, on continue
+        # Créer les 3 sessions dont on aura besoin
+        try: 
+            await session_service.create_session(user_id=user_id, session_id=f"{session_id}_flight", app_name=app_name)
+            await session_service.create_session(user_id=user_id, session_id=f"{session_id}_activity", app_name=app_name)
+            await session_service.create_session(user_id=user_id, session_id=f"{session_id}_hotel", app_name=app_name)
+        except: pass
 
-        yield f"data: {json.dumps({'type': 'log', 'message': f'Réveil de l\'IA {app_name}...'})}\n\n"
+        # --- APPEL SÉQUENTIEL DES 3 AGENTS (on stocke immédiatement chaque résultat) ---
+        
+        flights_text = ""
+        activities_text = ""
+        hotels_text = ""
+        
+        run_config = RunConfig(max_llm_calls=10)
+        
+        # 1. FLIGHT AGENT
+        yield f"data: {json.dumps({'type': 'tool', 'message': '✈️ Recherche de vols...'})}\n\n"
+        flight_runner = Runner(agent=flight_agent, app_name=app_name, session_service=session_service)
+        
+        # Prompt explicite pour que l'agent utilise bien tous les paramètres
+        flight_prompt_text = f"Appelle l'outil search_flights avec ces paramètres EXACTS :\n"
+        flight_prompt_text += f"- origin: '{origin}'\n"
+        flight_prompt_text += f"- destination: '{destination or ''}'\n"
+        if budget_max:
+            flight_prompt_text += f"- max_price: {budget_max}\n"
+        if airline:
+            flight_prompt_text += f"- preferred_airline: '{airline}'\n"
+        if date:
+            flight_prompt_text += f"- preferred_date: '{date}'\n"
+        
+        flight_prompt = Message(role="user", parts=[Part(text=flight_prompt_text)])
 
-        runner = Runner(
-            agent=root_agent, 
-            app_name=app_name, 
-            session_service=session_service
-        )
         
-        run_config = RunConfig(max_llm_calls=40)  # Augmenté pour permettre plusieurs tours d'agents
-        
-        yield f"data: {json.dumps({'type': 'log', 'message': '🤖 L\'agent analyse votre demande...'})}\n\n"
-        response_generator = runner.run(
-            user_id=user_id,
-            session_id=session_id,
-            new_message=user_msg,
-            run_config=run_config
-        )
-
-        agent_response = ""
-        
-        # 4. J'écoute tout ce que l'agent a à dire en temps réel
         try:
-            for event in response_generator:
-                await asyncio.sleep(0.1) 
-                
-                log_msg = ""
-                msg_type = "log"
-                
-                # On regarde si l'événement contient du contenu (Event standard)
+            for event in flight_runner.run(user_id=user_id, session_id=f"{session_id}_flight", new_message=flight_prompt, run_config=run_config):
                 if hasattr(event, 'content') and event.content and hasattr(event.content, 'parts'):
                     for part in event.content.parts:
-                        
-                        # 1. Cas d'appel de fonction (l'agent veut chercher un vol)
-                        if hasattr(part, 'function_call') and part.function_call:
-                             log_msg = f"🛠️ Outil activé : {part.function_call.name}"
-                             msg_type = "tool"
-                        
-                        # 2. Cas de réponse de fonction (l'outil a répondu)
-                        elif hasattr(part, 'function_response') and part.function_response:
-                             log_msg = f"🔙 Retour outil : Données reçues pour {part.function_response.name}"
-
-                        # 3. Cas de texte (l'agent parle)
-                        elif hasattr(part, 'text') and part.text:
-                             # Ici, c'est l'agent qui "pense" tout haut ou répond
-                             log_msg = f"📝 Réponse : {part.text[:50]}..."
-                             agent_response += part.text
-
-                if log_msg:
-                    yield f"data: {json.dumps({'type': msg_type, 'message': log_msg})}\n\n"
-
+                        if hasattr(part, 'text') and part.text:
+                            flights_text += part.text
         except Exception as e:
-            print(f"DEBUG EXCEPTION: {e}")
-            yield f"data: {json.dumps({'type': 'error', 'message': f'erreur : {str(e)}'})}\n\n"
-
-        # --- DEBUG MODE ---
-        print(f"\n📝 RÉPONSE BRUTE DE L'AGENT :\n{agent_response}")
-        print(f"-----------------------------------\n")
-        flights = []
-        # On rend le tiret '-' optionnel (\-?) et on est plus souple sur les espaces
-        pattern = r"\-?\s*(.*?)\s+\((.*?)\)\s*:\s*(.*?)\s*->\s*(.*?)\s*\|\s*départ\s+(.*?)\s+arrivée\s+(.*?)\s+pour\s+(.*?)€"
-        
-        matches = re.finditer(pattern, agent_response)
-        for match in matches:
-            flights.append({
-                "airline": f"{match.group(1)} ({match.group(2)})",
-                "origin": match.group(3).strip(),
-                "destination": match.group(4).strip(),
-                "departure": match.group(5).strip(),
-                "arrival": match.group(6).strip(),
-                "price": match.group(7).strip()
-            })
+            flights_text = f"Erreur vols: {e}"
             
-        yield f"data: {json.dumps({'type': 'log', 'message': f'✅ {len(flights)} options trouvées !'})}\n\n"
+        print(f"📝 VOLS:\n{flights_text}\n---")
         
+        # 2. ACTIVITY AGENT
+        yield f"data: {json.dumps({'type': 'tool', 'message': '🎭 Recherche activités...'})}\n\n"
+        activity_runner = Runner(agent=activity_agent, app_name=app_name, session_service=session_service)
+        
+        # Décider quel type d'activité chercher selon le formulaire
+        if activities and "restaurant" in activities.lower():
+            activity_prompt_text = f"Appelle UNIQUEMENT l'outil search_restaurants avec city='{target}'"
+        elif activities and activities.lower() not in ["", "tous", "toutes"]:
+            activity_prompt_text = f"Appelle UNIQUEMENT l'outil search_activities avec city='{target}'"
+        else:
+            # Si vide ou "tous", chercher les deux
+            activity_prompt_text = f"Appelle les DEUX outils : search_restaurants(city='{target}') ET search_activities(city='{target}')"
+        
+        activity_prompt = Message(role="user", parts=[Part(text=activity_prompt_text)])
 
+        
+        try:
+            for event in activity_runner.run(user_id=user_id, session_id=f"{session_id}_activity", new_message=activity_prompt, run_config=run_config):
+                if hasattr(event, 'content') and event.content and hasattr(event.content, 'parts'):
+                    for part in event.content.parts:
+                        if hasattr(part, 'text') and part.text:
+                            activities_text += part.text
+        except Exception as e:
+            activities_text = f"Erreur activités: {e}"
+            
+        print(f"📝 ACTIVITÉS:\n{activities_text}\n---")
+        
+        # 3. HOTEL AGENT
+        yield f"data: {json.dumps({'type': 'tool', 'message': '🏨 Recherche hôtels...'})}\n\n"
+        hotel_runner = Runner(agent=hotel_agent, app_name=app_name, session_service=session_service)
+        
+        # Prompt explicite pour les paramètres
+        hotel_prompt_text = f"Appelle l'outil search_hotels avec ces paramètres EXACTS :\n"
+        hotel_prompt_text += f"- city: '{target}'\n"
+        if hotel_budget_max:
+            hotel_prompt_text += f"- budget: {hotel_budget_max}\n"
+        if amenities:
+            hotel_prompt_text += f"- amenities: '{amenities}'\n"
+        
+        hotel_prompt = Message(role="user", parts=[Part(text=hotel_prompt_text)])
+
+        
+        try:
+            for event in hotel_runner.run(user_id=user_id, session_id=f"{session_id}_hotel", new_message=hotel_prompt, run_config=run_config):
+                if hasattr(event, 'content') and event.content and hasattr(event.content, 'parts'):
+                    for part in event.content.parts:
+                        if hasattr(part, 'text') and part.text:
+                            hotels_text += part.text
+        except Exception as e:
+            hotels_text = f"Erreur hôtels: {e}"
+            
+        print(f"📝 HÔTELS:\n{hotels_text}\n---")
+
+        # --- PARSING (sur les 3 textes séparés) ---
+        
+        flights = []
         act_list = []
-
-        act_pattern = r"(Activité|Restaurant),\s*(.*?),\s*(.*?)€\s*,\s*(.*)"
+        hotels_list = []
         
-        act_matches = re.finditer(act_pattern, agent_response)
-        for m in act_matches:
+        # 1. PARSING VOLS
+        flight_pattern = r"-\s+([^(]+)\s+\(([^)]+)\)\s+:\s+(.*?)\s+->\s+(.*?)\s+\|\s+départ\s+(.*?)\s+arrivée\s+(.*?)\s+pour\s+([\d.]+)€"
+        for m in re.finditer(flight_pattern, flights_text):
+            flights.append({
+                "airline": f"{m.group(1)} ({m.group(2)})",
+                "departure": m.group(5).strip(),
+                "price": m.group(7).strip()
+            })
+
+        # 2. PARSING ACTIVITÉS
+        act_pattern = r"(Activité|Restaurant),\s*([^,]+),\s*([\d.]+)€,\s*(.*)"
+        for m in re.finditer(act_pattern, activities_text):
             act_list.append({
                 "type": m.group(1),
                 "name": m.group(2),
@@ -183,14 +186,26 @@ async def stream_search(
                 "description": m.group(4)
             })
 
-        
+        # 3. PARSING HÔTELS
+        hotel_pattern = r"-\s+([^à]+)\s+à\s+([^p]+)\s+pour\s+([\d.]+)€/nuit\s+\(Dispo:\s+([^a]+)\s+au\s+([^,]+),\s+Services:\s+(.*)\)"
+        for m in re.finditer(hotel_pattern, hotels_text):
+            serv = m.group(6).strip()
+            if serv.endswith(")"): serv = serv[:-1]
+            hotels_list.append({
+                "name": m.group(1),
+                "price": m.group(3),
+                "amenities": serv
+            })
+
+        yield f"data: {json.dumps({'type': 'log', 'message': f'✅ Résultats : {len(flights)} Vols, {len(act_list)} Activités, {len(hotels_list)} Hôtels'})}\n\n"
+        print(f"📊 STATS : {len(flights)} Vols | {len(act_list)} Activités | {len(hotels_list)} Hôtels")
+
         final_html = templates.get_template("results.html").render({
             "request": request, 
-            "response": agent_response,
-            "origin": origin,
-            "destination": destination,
+            "response": f"Vols:\n{flights_text}\n\nActivités:\n{activities_text}\n\nHôtels:\n{hotels_text}",
             "flights": flights,
-            "activities": act_list
+            "activities": act_list,
+            "hotels": hotels_list
         })
         
         yield f"data: {json.dumps({'type': 'complete', 'html': final_html})}\n\n"
