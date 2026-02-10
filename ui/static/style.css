@@ -16,6 +16,132 @@ body {
     background-color: var(--white);
 }
 
+/* --- TABS & RESULTS CARDS --- */
+.tabs-header {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    border-bottom: 2px solid #eee;
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-weight: bold;
+    font-size: 16px;
+    color: #666;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+}
+
+.tab-btn:hover {
+    color: var(--primary);
+}
+
+.tab-btn.active {
+    color: var(--primary);
+    border-bottom: 3px solid var(--primary);
+}
+
+.tab-content {
+    display: none;
+    padding: 20px 0;
+    animation: fadeIn 0.3s;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Cartes de résultats */
+.result-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: white;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.result-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-tag {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: bold;
+    margin-right: 15px;
+    white-space: nowrap;
+}
+
+.card-info {
+    flex: 1;
+    padding: 0 15px;
+}
+
+.card-info strong {
+    color: var(--primary);
+    font-size: 1.1em;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.card-info p {
+    color: #666;
+    font-size: 0.95em;
+    margin: 0;
+}
+
+.card-price {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.2em;
+    white-space: nowrap;
+}
+
+.empty-msg {
+    text-align: center;
+    color: #999;
+    padding: 40px;
+    font-style: italic;
+}
+
+.results-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.results-container h2 {
+    color: var(--primary);
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 2em;
+}
+
 /* --- HEADER --- */
 header {
     background-color: var(--primary);
