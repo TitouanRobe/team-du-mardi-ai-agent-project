@@ -9,13 +9,20 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Dossier test_agent
 HOTELS_DB_PATH = os.path.join(BASE_DIR, '..', 'data', 'hotels.db')
 
 
-def search_hotels(city) -> str:
+def search_hotels(city: str, budget: float = 1000000, amenities: str = None) -> str:
     """
-    Recherche les hotels dans la DB.
-    Utilise LIKE pour être insensible à la casse (Hotel = hotel).
+    Recherche les hotels dans la base de données.
+    Args:
+        city: La ville où chercher un hotel (ex: Paris, Tokyo).
+        budget: Optionnel. Le budget maximum en euros (ex: 150.0). Par défaut 1000000 (pas de limite).
+        amenities: Les services souhaités, séparés par des virgules (ex: "WiFi, Spa").
+                   Peut être None si aucun service spécifique n'est demandé.
+
+    Returns:
+        Une liste textuelle des hotels trouvés.
     """
-    print(f"\n🔎 [DEBUG] L'agent appelle l'outil avec : {city}")
-    print(f"📂 [DEBUG] Chemin de la DB utilisé : {HOTELS_DB_PATH}")
+    print(f"\n [DEBUG] L'agent appelle l'outil avec : {city} et un budget de {budget}€ et activités : {amenities}")
+    print(f" [DEBUG] Chemin de la DB utilisé : {HOTELS_DB_PATH}")
 
     try:
         if not os.path.exists(HOTELS_DB_PATH):
@@ -24,14 +31,27 @@ def search_hotels(city) -> str:
         conn = sqlite3.connect(HOTELS_DB_PATH)
         cursor = conn.cursor()
 
-        # 2. On utilise LIKE et des % pour que "paris" trouve "Paris" ou "Paris CDG"
-        query = """
-                SELECT city, name, price, amenities, available_dates
-                FROM hotels
-                WHERE city LIKE ? \
-                """
-        # Les % permettent de chercher "contient ce mot"
-        cursor.execute(query, (f"%{city}%",))
+        if amenities is None:
+            query = """
+                    SELECT city, name, price, amenities, available_dates
+                    FROM hotels
+                    WHERE city LIKE ? \
+                      AND price <= ? \
+                    """
+            # Les % permettent de chercher "contient ce mot"
+            cursor.execute(query, (f"%{city}%", budget))
+        else :
+
+            query = """
+                    SELECT city, name, price, amenities, available_dates
+                    FROM hotels
+                    WHERE city LIKE ? \
+                      AND price <= ? \
+                      AND amenities LIKE ? \
+                    """
+            # Les % permettent de chercher "contient ce mot"
+            cursor.execute(query, (f"%{city}%", budget, f"%{amenities}%"))
+
         results = cursor.fetchall()
         conn.close()
 
@@ -55,49 +75,17 @@ def search_hotels(city) -> str:
 
 # Définition de l'agent
 root_agent = Agent(
-    model='gemini-2.0-flash',  # Ou gemini-1.5-flash
+    model='gemini-2.5-flash',  # Ou gemini-1.5-flash
     name='hotel_agent',
     description='Expert en recherche en hotels.',
     instruction="""
-    Tu es un agent de voyage serviable.
-    QUAND on te demande un hotel, tu DOIS utiliser l'outil search_hotel.
-    Une fois que l'outil te répond, formule une phrase complète et agréable pour l'utilisateur.
-    Ne montre pas de JSON ou de code à l'utilisateur.
+    Tu es un agent de voyage spécialisé dans l'hôtellerie.
+    QUAND on te demande un hotel, utilise l'outil search_hotels.
+    Tu as SEULEMENT besoin de la ville pour lancer une recherche.
+    Si l'utilisateur précise un budget, passe-le en paramètre. Sinon, ne le précise pas.
+    Si l'utilisateur précise des services (amenities), passe-les. Sinon, ne les précise pas.
+    Si l'utilisateur ne precise pas de dates (dates), passe-les. Sinon, ne les précise pas.
+    Formule une réponse agréable avec les résultats sans intégrer de JSON ou de code.
     """,
     tools=[search_hotels]
 )
-
-
-if __name__ == "__main__":
-    my_runner = Runner(agent=root_agent)
-    print("\nL'Agent Hotels est prêt ! (Tape 'quit' pour sortir)")
-
-    while True:
-        user_input = input("\n👤 Vous : ")
-        if user_input.lower() in ['quit', 'exit']:
-            break
-
-        print("")
-
-        try:
-            response = my_runner.run(user_input, stream=True)
-
-            for chunk in response:
-                # DEBUG: Afficher le type et les attributs du chunk
-                print(f"\n\033[94m[DEBUG] Type: {type(chunk).__name__}\033[0m")
-                print(f"\033[94m[DEBUG] Attributs: {[a for a in dir(chunk) if not a.startswith('_')]}\033[0m")
-                
-                # Afficher les valeurs des attributs intéressants
-                if hasattr(chunk, 'author'):
-                    print(f"\033[93m[DEBUG] author: {chunk.author}\033[0m")
-                if hasattr(chunk, 'actions') and chunk.actions:
-                    print(f"\033[93m[DEBUG] actions: {chunk.actions}\033[0m")
-
-                # Affichage de la réponse texte
-                if hasattr(chunk, 'text') and chunk.text:
-                    print(chunk.text, end="", flush=True)
-
-            print("")
-
-        except Exception as e:
-            print(f"Erreur : {e}")
