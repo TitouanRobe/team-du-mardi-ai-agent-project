@@ -12,6 +12,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingOverlay = document.getElementById('loading-overlay');
     const resultContainer = document.getElementById('resultContainer');
 
+    // Dans ton écouteur d'événement 'submit' ou ta fonction de recherche :
+    const origin = document.getElementById('origin').value;
+    const dest = document.getElementById('destination').value;
+    const pref = document.getElementById('preferences').value;
+    const dateDept = document.getElementById('departure_date').value;
+    const budget = document.getElementById('budget_max').value;
+    const airline = document.getElementById('airline').value;
+
+    // On construit l'URL avec tous les paramètres
+    const url = `/stream_search?origin=${origin}&destination=${dest}&preferences=${pref}&budget_max=${budget}&airline=${airline}&date=${dateDept}`;
+
+    const eventSource = new EventSource(url);
+
     // --- 2. GESTION DE LA MODALE (OUVERTURE / FERMETURE) ---
 
     // Ouvrir la modale
@@ -35,78 +48,66 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 3. GESTION DES OPTIONS AVANCÉES ---
-    const toggleOptions = document.getElementById('toggleOptions');
-    const advancedOptions = document.getElementById('advanced-options');
-
-    if (toggleOptions && advancedOptions) {
-        toggleOptions.onclick = () => {
-            toggleOptions.classList.toggle('active');
-            advancedOptions.classList.toggle('open');
-        };
-    }
-
-    // --- 4. GESTION DE LA SOUMISSION ET DE L'ANIMATION ---
+    // --- 3. GESTION DE LA SOUMISSION ET DE L'ANIMATION ---
 
     if (travelForm) {
         travelForm.onsubmit = (e) => {
             e.preventDefault(); // Empêche le rechargement
-            console.log("🚀 Lancement de la demande Streaming...");
+            console.log("Lancement de la demande Streaming...");
 
-            // A. AFFICHER L'ANIMATION + LOGS
-            const startTime = Date.now(); // On note l'heure de départ
+            // 1. AFFICHER L'ANIMATION + CACHER LE CONTENU
+            const startTime = Date.now();
+            const mainEl = document.querySelector('main');
+            if (mainEl) mainEl.style.display = 'none';
             modal.style.display = 'none';
             if (loadingOverlay) {
                 loadingOverlay.style.display = 'flex';
             }
             const logsContainer = document.getElementById('logs');
-            if (logsContainer) logsContainer.innerHTML = '<div>Connexion au satellite...</div>';
+            // Rebuild the progress bar structure
+            if (logsContainer) {
+                logsContainer.innerHTML = `
+                    <div class="progress-current-step" id="currentStep">Connexion au satellite...</div>
+                    <div class="progress-vertical-track">
+                        <div class="progress-vertical-fill" id="progressFill"></div>
+                    </div>
+                `;
+            }
+            let progressCount = 0;
 
-            // B. RÉCUPÉRATION DES PARAMÈTRES
-            const origin = document.getElementById('origin').value;
-            const dest = document.getElementById('destination').value;
-            const pref = document.getElementById('preferences').value;
-            const dateDept = document.getElementById('departure_date').value;
-            const budget = document.getElementById('budget_max').value;
-            const airline = document.getElementById('airline').value;
-            const activities = document.getElementById('activities').value;
-            const hotelBudget = document.getElementById('hotel_budget_max').value;
-            const hotelAmenities = document.getElementById('amenities').value;
+            // 2. RÉCUPÉRATION DES PARAMÈTRES
+            const formData = new FormData(travelForm);
+            const params = new URLSearchParams();
+            for (const pair of formData.entries()) {
+                params.append(pair[0], pair[1]);
+            }
 
-            // On construit l'URL avec tous les paramètres
-            // Note: encodeURIComponent est une bonne pratique pour éviter les bugs avec des espaces ou caractères spéciaux
-            const params = new URLSearchParams({
-                origin: origin,
-                destination: dest,
-                preferences: pref,
-                budget_max: budget,
-                airline: airline,
-                date: dateDept,
-                activities: activities,
-                hotel_budget_max: hotelBudget,
-                amenities: hotelAmenities
-            });
-
+            // 3. LANCEMENT DU STREAM (EventSource)
             const url = `/stream_search?${params.toString()}`;
-
             const eventSource = new EventSource(url);
 
             eventSource.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
 
-                    // --- C. GESTION DES LOGS ---
+                    // --- A. GESTION DES LOGS + BARRE DE PROGRESSION ---
                     if (data.type === 'log' || data.type === 'tool' || data.type === 'error') {
-                        const div = document.createElement('div');
-                        div.className = `log-entry ${data.type}`;
-                        div.textContent = `> ${data.message}`;
-                        if (logsContainer) {
-                            logsContainer.appendChild(div);
-                            logsContainer.scrollTop = logsContainer.scrollHeight; // Auto-scroll
+                        // Update the current step label
+                        const currentStep = document.getElementById('currentStep');
+                        if (currentStep) {
+                            currentStep.textContent = data.message;
+                        }
+
+                        // Increment progress bar by 10% per message
+                        progressCount++;
+                        const progressFill = document.getElementById('progressFill');
+                        if (progressFill) {
+                            const pct = Math.min(progressCount * 25, 100);
+                            progressFill.style.width = pct + '%';
                         }
                     }
 
-                    // --- D. ARRIVÉE / MODIFICATION DE PAGE ---
+                    // --- B. ARRIVÉE / MODIFICATION DE PAGE ---
                     else if (data.type === 'complete') {
                         console.log("🛬 Terminé ! Affichage des résultats.");
                         eventSource.close();
@@ -122,6 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             document.open();
                             document.write(data.html);
                             document.close();
+
+                            // MAJ de l'URL pour faire "propre" (Optionnel)
+                            // window.history.pushState({}, "Résultats", "/search");
                         }, remainingTime);
                     }
 
@@ -136,10 +140,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (logsContainer) {
                     const div = document.createElement('div');
                     div.style.color = "red";
-                    div.textContent = "> ❌ Connexion perdue.";
+                    div.textContent = "Connexion perdue.";
                     logsContainer.appendChild(div);
                 }
             };
+        };
+    }
+
+    // --- 4. GESTION DES OPTIONS AVANCÉES ---
+    const toggleOptions = document.getElementById('toggleOptions');
+    const advancedOptions = document.getElementById('advanced-options');
+
+    if (toggleOptions && advancedOptions) {
+        toggleOptions.onclick = () => {
+            advancedOptions.classList.toggle('open');
+            toggleOptions.classList.toggle('active');
         };
     }
 });
