@@ -12,9 +12,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from test_agent.agent import root_agent
-import test_agent.agent as agent_module # Nécessaire pour ma petite astuce de sauvegarde ;)
 from google.adk.runners import Runner, RunConfig 
-from google.adk.sessions import InMemorySessionService
+from google.adk.sessions import InMemorySessionService  
 import re
 
 # --- Mes petites classes pour que tout le monde se comprenne ---
@@ -46,8 +45,7 @@ async def stream_search(request: Request, origin: str, destination: str, prefere
     print(f"\n📡 NOUVELLE REQUÊTE STREAMING : {origin} -> {destination}")
     
     # Je m'assure que la variable de secours est bien vide avant de commencer
-    if hasattr(agent_module, 'last_search_text'):
-        agent_module.last_search_text = ""
+
 
     async def event_generator():
         # 0. On démarre doucement
@@ -106,49 +104,34 @@ async def stream_search(request: Request, origin: str, destination: str, prefere
                 log_msg = ""
                 msg_type = "log"
                 
-                # Cas où l'agent utilise un outil (ex: chercher dans la BDD)
-                if hasattr(event, 'function_call'):
-                    log_msg = f"🛠️ Outil activé : {event.function_call.name}"
-                    msg_type = "tool"
-                elif hasattr(event, 'parts'):
-                     for part in event.parts:
-                        if hasattr(part, 'function_call'):
+                # On regarde si l'événement contient du contenu (Event standard)
+                if hasattr(event, 'content') and event.content and hasattr(event.content, 'parts'):
+                    for part in event.content.parts:
+                        
+                        # 1. Cas d'appel de fonction (l'agent veut chercher un vol)
+                        if hasattr(part, 'function_call') and part.function_call:
                              log_msg = f"🛠️ Outil activé : {part.function_call.name}"
                              msg_type = "tool"
-                        elif hasattr(part, 'text') and part.text:
-                             # Ici, c'est l'agent qui "pense" tout haut
-                             log_msg = f"💭 Pensée : {part.text[:50]}..."
-                             agent_response += part.text
+                        
+                        # 2. Cas de réponse de fonction (l'outil a répondu)
+                        elif hasattr(part, 'function_response') and part.function_response:
+                             log_msg = f"🔙 Retour outil : Données reçues pour {part.function_response.name}"
 
-                # Cas où l'outil répond à l'agent
-                if hasattr(event, 'function_response'):
-                    log_msg = f"🔙 Retour outil : Données reçues pour {event.function_response.name}"
-                
-                # Cas où l'agent me répond enfin textuellement
-                if hasattr(event, 'text') and event.text:
-                    if log_msg == "": 
-                        log_msg = f"📝 Réponse : {event.text[:50]}..."
-                    agent_response += event.text
-                
-                # Cas réponse finale et officielle
-                if hasattr(event, 'output') and hasattr(event.output, 'text'):
-                     log_msg = "🏁 Itinéraire généré avec succès !"
-                     agent_response += event.output.text
+                        # 3. Cas de texte (l'agent parle)
+                        elif hasattr(part, 'text') and part.text:
+                             # Ici, c'est l'agent qui "pense" tout haut ou répond
+                             log_msg = f"📝 Réponse : {part.text[:50]}..."
+                             agent_response += part.text
 
                 # Si j'ai capté un truc intéressant, je l'envoie au front-end
                 if log_msg:
                     yield f"data: {json.dumps({'type': msg_type, 'message': log_msg})}\n\n"
 
         except Exception as e:
+            print(f"DEBUG EXCEPTION: {e}")
             yield f"data: {json.dumps({'type': 'error', 'message': f'❌ Oups, petit souci : {str(e)}'})}\n\n"
 
-        # Si jamais l'agent est muet (ça arrive), je tente ma technique de secours
-        if not agent_response:
-             if hasattr(agent_module, 'last_search_text') and agent_module.last_search_text:
-                 agent_response = agent_module.last_search_text
-                 yield f"data: {json.dumps({'type': 'log', 'message': '⚠️ Plan B activé : Récupération forcée.'})}\n\n"
 
-        # 5. J'extrais les infos importantes (Compagnie, Prix, Heure) pour faire joli
         flights = []
         pattern = r"-\s+(.*?)\s+départ à\s+(.*?)\s+pour\s+(.*?)€"
         matches = re.finditer(pattern, agent_response)
@@ -161,7 +144,6 @@ async def stream_search(request: Request, origin: str, destination: str, prefere
             
         yield f"data: {json.dumps({'type': 'log', 'message': f'✅ {len(flights)} options trouvées !'})}\n\n"
         
-        # Je génère la page de résultats finale
         final_html = templates.get_template("results.html").render({
             "request": request, 
             "response": agent_response,
@@ -170,7 +152,6 @@ async def stream_search(request: Request, origin: str, destination: str, prefere
             "flights": flights
         })
         
-        # Et hop, j'envoie tout au navigateur pour l'affichage final
         yield f"data: {json.dumps({'type': 'complete', 'html': final_html})}\n\n"
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
@@ -184,8 +165,7 @@ async def handle_search(
     preferences: str = Form(None)
 ):
     print("Cette route ne sert plus qu'en backup !")
-    # ... (le reste est identique mais je simplifie pour la lisibilité)
-    return await stream_search(request, origin, destination, preferences) # Redirection simple pour éviter le duplicate code si besoin
+    return await stream_search(request, origin, destination, preferences) 
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

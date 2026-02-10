@@ -7,16 +7,13 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__)) # Dossier test_agent
 # On remonte d'un cran (..) pour aller dans data
 FLIGHTS_DB_PATH = os.path.join(BASE_DIR, '..', 'data', 'flights.db')
 
-# Variable globale pour le hack de récupération (Sauvegarde de secours)
-last_search_text = ""
+
 
 def search_flights(origin: str, destination: str) -> str:
     """
     Recherche les vols dans la DB.
     Utilise LIKE pour être insensible à la casse (Paris = paris).
     """
-    global last_search_text # On déclare qu'on va modifier la variable globale
-    
     print(f"\n🔎 [DEBUG] L'agent appelle l'outil avec : {origin} -> {destination}")
     print(f"📂 [DEBUG] Chemin de la DB utilisé : {FLIGHTS_DB_PATH}")
 
@@ -41,18 +38,13 @@ def search_flights(origin: str, destination: str) -> str:
         print(f"✅ [DEBUG] Résultats trouvés : {results}")
 
         if not results:
-            last_search_text = f"Désolé, je n'ai trouvé aucun vol dans la base de données pour {origin} vers {destination}."
-            return last_search_text
+            return f"Désolé, je n'ai trouvé aucun vol dans la base de données pour {origin} vers {destination}."
         
         # 3. On formate une belle réponse texte pour l'agent
         response = f"J'ai trouvé {len(results)} vols disponibles :\n"
         for r in results:
             # r[0]=airline, r[1]=time, r[2]=price
             response += f"- {r[0]} départ à {r[1]} pour {r[2]}€\n"
-            
-        # SAUVEGARDE POUR LE HACK
-        last_search_text = response
-        print(f"💾 [DEBUG] Résultat sauvegardé dans last_search_text : {len(response)} chars")
             
         return response
 
@@ -69,7 +61,12 @@ root_agent = Agent(
     Tu es un agent de voyage serviable.
     QUAND on te demande un vol, tu DOIS utiliser l'outil search_flights.
     Une fois que l'outil te répond, formule une phrase complète et agréable pour l'utilisateur.
-    Ne montre pas de JSON ou de code à l'utilisateur.
+    IMPORTANT : Tu DOIS lister les vols trouvés EXACTEMENT sous la forme suivante pour chaque vol :
+    - [Compagnie] départ à [Heure] pour [Prix]€
+    Exemple :
+    - Air France départ à 2023-10-12 10:00 pour 150.0€
+    Si tu ne respectes pas ce format EXACT, le système ne pourra pas afficher les résultats.
+    Ne montre pas de JSON ou de code à l'utilisateur, juste le texte formaté.
     """,
     tools=[search_flights]
 )
