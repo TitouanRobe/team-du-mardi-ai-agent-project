@@ -9,12 +9,12 @@
     height: 100vh;
     /* Dégradé de ciel bleu */
     background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
-    z-index: 10000; /* Au-dessus de tout le reste */
-    display: none;  /* Caché par défaut, activé par le JS */
+    z-index: 10000;
+    display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* Empêche les scrollbars quand l'avion sort de l'écran */
+    overflow: hidden;
 }
 
 /* --- 2. LA VILLE (Silhouette en bas) --- */
@@ -38,7 +38,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Permet de cliquer à travers si besoin */
+    pointer-events: none;
+    /* Permet de cliquer à travers si besoin */
     z-index: 10;
 }
 
@@ -46,16 +47,16 @@
 .plane {
     /* --- L'IMAGE --- */
     /* Assurez-vous que l'image est dans ui/static/ et pointe vers la DROITE */
-    background-image: 'plane-side.png'; 
+    background-image: 'plane-side.png';
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    
+
     /* --- LA TAILLE --- */
     /* Ajustez selon la forme de votre avion */
     width: 150px;
     height: 80px;
-    
+
     position: absolute;
     /* offset-anchor permet de pivoter autour du centre de l'avion */
     offset-anchor: center;
@@ -66,12 +67,12 @@
        Fin = (Hors écran droite bas) */
     /* Note : Les valeurs sont en pixels relatifs à la fenêtre */
     offset-path: path('M -200,600 C 400,-100 800,-100 1400,600');
-    
+
     /* --- L'ORIENTATION AUTOMATIQUE --- */
     /* "auto" fait tourner l'image pour suivre la ligne.
        "0deg" suppose que l'image pointe vers la droite. */
     offset-rotate: auto 0deg;
-    
+
     /* --- L'ANIMATION --- */
     animation: fly-curve 5s linear infinite;
 }
@@ -79,17 +80,23 @@
 /* Définition du mouvement */
 @keyframes fly-curve {
     0% {
-        offset-distance: 0%; /* Début du chemin */
+        offset-distance: 0%;
+        /* Début du chemin */
         opacity: 0;
     }
+
     10% {
-        opacity: 1; /* Apparaît en entrant */
+        opacity: 1;
+        /* Apparaît en entrant */
     }
+
     90% {
         opacity: 1;
     }
+
     100% {
-        offset-distance: 100%; /* Fin du chemin */
+        offset-distance: 100%;
+        /* Fin du chemin */
         opacity: 0;
     }
 }
@@ -97,20 +104,28 @@
 /* --- 5. TEXTE DE CHARGEMENT --- */
 .loading-text {
     position: absolute;
-    bottom: 30vh; /* Positionné au-dessus de la ville */
+    bottom: 30vh;
+    /* Positionné au-dessus de la ville */
     font-family: 'Arial', sans-serif;
     color: white;
     font-size: 1.5rem;
     font-weight: bold;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     text-align: center;
     animation: pulse-text 1.5s infinite alternate;
     z-index: 20;
 }
 
 @keyframes pulse-text {
-    from { opacity: 0.8; transform: scale(1); }
-    to { opacity: 1; transform: scale(1.05); }
+    from {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1.05);
+    }
 }
 
 /* --- 6. NUAGES DÉCORATIFS --- */
@@ -121,10 +136,28 @@
     animation: float-cloud 20s linear infinite;
     user-select: none;
 }
-.c1 { top: 15%; left: -10%; font-size: 100px; animation-duration: 25s; }
-.c2 { top: 35%; left: -20%; font-size: 70px; animation-duration: 30s; opacity: 0.6; }
+
+.c1 {
+    top: 15%;
+    left: -10%;
+    font-size: 100px;
+    animation-duration: 25s;
+}
+
+.c2 {
+    top: 35%;
+    left: -20%;
+    font-size: 70px;
+    animation-duration: 30s;
+    opacity: 0.6;
+}
 
 @keyframes float-cloud {
-    from { transform: translateX(0); }
-    to { transform: translateX(120vw); }
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(120vw);
+    }
 }

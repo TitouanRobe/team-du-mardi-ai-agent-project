@@ -55,14 +55,25 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault(); // Empêche le rechargement
             console.log("Lancement de la demande Streaming...");
 
-            // 1. AFFICHER L'ANIMATION + LOGS
-            const startTime = Date.now(); // On note l'heure de départ
+            // 1. AFFICHER L'ANIMATION + CACHER LE CONTENU
+            const startTime = Date.now();
+            const mainEl = document.querySelector('main');
+            if (mainEl) mainEl.style.display = 'none';
             modal.style.display = 'none';
             if (loadingOverlay) {
                 loadingOverlay.style.display = 'flex';
             }
             const logsContainer = document.getElementById('logs');
-            if (logsContainer) logsContainer.innerHTML = '<div>Connnexion au satellite...</div>';
+            // Rebuild the progress bar structure
+            if (logsContainer) {
+                logsContainer.innerHTML = `
+                    <div class="progress-current-step" id="currentStep">Connexion au satellite...</div>
+                    <div class="progress-vertical-track">
+                        <div class="progress-vertical-fill" id="progressFill"></div>
+                    </div>
+                `;
+            }
+            let progressCount = 0;
 
             // 2. RÉCUPÉRATION DES PARAMÈTRES
             const formData = new FormData(travelForm);
@@ -79,14 +90,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const data = JSON.parse(event.data);
 
-                    // --- A. GESTION DES LOGS ---
+                    // --- A. GESTION DES LOGS + BARRE DE PROGRESSION ---
                     if (data.type === 'log' || data.type === 'tool' || data.type === 'error') {
-                        const div = document.createElement('div');
-                        div.className = `log-entry ${data.type}`;
-                        div.textContent = `> ${data.message}`;
-                        if (logsContainer) {
-                            logsContainer.appendChild(div);
-                            logsContainer.scrollTop = logsContainer.scrollHeight; // Auto-scroll
+                        // Update the current step label
+                        const currentStep = document.getElementById('currentStep');
+                        if (currentStep) {
+                            currentStep.textContent = data.message;
+                        }
+
+                        // Increment progress bar by 10% per message
+                        progressCount++;
+                        const progressFill = document.getElementById('progressFill');
+                        if (progressFill) {
+                            const pct = Math.min(progressCount * 25, 100);
+                            progressFill.style.width = pct + '%';
                         }
                     }
 

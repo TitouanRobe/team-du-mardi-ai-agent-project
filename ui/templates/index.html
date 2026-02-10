@@ -7,25 +7,13 @@
     <title>Travel Agent IA</title>
     <link rel="stylesheet" href="../static/style.css">
     <link rel="stylesheet" href="../static/modal.css">
-    <link rel="stylesheet" href="../static/loader.css">
 </head>
 
 <body>
 
-    <div id="loading-overlay">
-        <div class="cloud c1">☁️</div>
-        <div class="cloud c2">☁️</div>
-        <div class="cityscape"></div>
-        <div class="plane-container">
-            <div class="plane"></div>
-        </div>
-        <div class="loading-text">L'IA prépare votre itinéraire...</div>
-        <!-- Console de logs intégrée au ciel -->
-        <div class="streaming-logs" id="logs"></div>
-    </div>
     <header>
         <div class="header-left">
-            <img src="/static/images/Logo.png" alt="Logo Travel Agent" class="logo">
+            <a href="/"><img src="/static/images/Logo.png" alt="Logo Travel Agent" class="logo"></a>
             <nav>
                 <a href="#">Explorer</a>
                 <a href="#">Comment ça marche ?</a>
@@ -43,6 +31,20 @@
             </svg>
         </div>
     </header>
+
+    <div id="loading-overlay">
+        <div class="plane-container">
+            <div class="plane"></div>
+        </div>
+        <h2>L'IA prépare votre itinéraire !</h2>
+        <!-- Console de logs avec barre de progression -->
+        <div class="streaming-logs" id="logs">
+            <div class="progress-current-step" id="currentStep">En attente...</div>
+            <div class="progress-vertical-track">
+                <div class="progress-vertical-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
 
     <main>
 
