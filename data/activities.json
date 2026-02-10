@@ -1,0 +1,1012 @@
+{
+  "Paris": {
+    "activities": [
+      {
+        "name": "Disneyland Paris (1 Jour)",
+        "description": "Le parc d'attraction féerique incontournable. Billet daté adulte pour les 2 parcs.",
+        "price": 95
+      },
+      {
+        "name": "Musée du Louvre",
+        "description": "Le plus grand musée d'art du monde. Billet d'entrée standard.",
+        "price": 22
+      },
+      {
+        "name": "Croisière Seine Nocturne",
+        "description": "Balade romantique d'une heure en bateau-mouche pour voir Paris illuminé.",
+        "price": 18
+      },
+      {
+        "name": "Catacombes de Paris",
+        "description": "Visite des ossuaires souterrains. Billet avec audioguide inclus.",
+        "price": 29
+      },
+      {
+        "name": "Promenade Montmartre & Sacré-Cœur",
+        "description": "Balade libre dans le quartier des artistes avec vue panoramique sur Paris.",
+        "price": 0
+      },
+      {
+        "name": "Jardin du Luxembourg",
+        "description": "Détente dans le plus beau jardin de Paris. Idéal pour un pique-nique.",
+        "price": 0
+      },
+      {
+        "name": "Opéra Garnier",
+        "description": "Visite libre du chef-d'œuvre architectural, son grand escalier et son plafond par Chagall.",
+        "price": 14
+      },
+      {
+        "name": "Sainte-Chapelle",
+        "description": "Joyau gothique avec des vitraux spectaculaires, situé sur l'Île de la Cité.",
+        "price": 12
+      }
+    ],
+    "restaurants": [
+      {
+        "name": "Le Potager de Charlotte",
+        "description": "Cuisine gastronomique 100% végétale et sans gluten.",
+        "price": 45
+      },
+      {
+        "name": "Le Bouillon Chartier",
+        "description": "Brasserie historique servant des classiques français à très petit prix.",
+        "price": 20
+      },
+      {
+        "name": "L'Ambroisie",
+        "description": "Haute gastronomie 3 étoiles Michelin sur la Place des Vosges.",
+        "price": 350
+      },
+      {
+        "name": "L'As du Fallafel",
+        "description": "Le meilleur falafel du Marais. Street food rapide.",
+        "price": 12
+      },
+      {
+        "name": "McDonald's Champs-Élysées",
+        "description": "Le McDo le plus célèbre de France avec vue sur l'avenue. Menu Best Of classique.",
+        "price": 11
+      },
+      {
+        "name": "Burger King Saint-Lazare",
+        "description": "Fast-food célèbre pour son Whopper grillé à la flamme. Service rapide.",
+        "price": 10
+      },
+      {
+        "name": "Crêperie Genia",
+        "description": "Les crêpes à emporter les moins chères de Paris (Saint-Michel).",
+        "price": 5
+      },
+      {
+        "name": "Gumbo Yaya",
+        "description": "Soul food américaine : Waffles et Chicken burger copieux et pas cher.",
+        "price": 14
+      },
+      {
+        "name": "Chez le Libanais",
+        "description": "Galettes man'ouché libanaises délicieuses cuites au four saj.",
+        "price": 8
+      },
+      {
+        "name": "Le Jules Verne",
+        "description": "Restaurant gastronomique étoilé situé au 2ème étage de la Tour Eiffel. Vue époustouflante.",
+        "price": 255
+      },
+      {
+        "name": "Guy Savoy",
+        "description": "Élu meilleur restaurant du monde plusieurs années. Célèbre pour sa soupe d'artichaut à la truffe.",
+        "price": 480
+      }
+    ]
+  },
+  "Tokyo": {
+    "activities": [
+      {
+        "name": "TeamLab Planets",
+        "description": "Musée d'art numérique immersif où l'on marche dans l'eau.",
+        "price": 26
+      },
+      {
+        "name": "Temple Senso-ji",
+        "description": "Le plus vieux temple bouddhiste de Tokyo. Accès au site.",
+        "price": 0
+      },
+      {
+        "name": "Tokyo Skytree",
+        "description": "Montée à la plus haute tour de diffusion du monde (350m).",
+        "price": 20
+      },
+      {
+        "name": "Ghibli Museum",
+        "description": "Plongée dans l'univers de Miyazaki (réservation mois à l'avance).",
+        "price": 10
+      },
+      {
+        "name": "Shibuya Crossing",
+        "description": "Traverser le passage piéton le plus célèbre du monde. Gratuit.",
+        "price": 0
+      },
+      {
+        "name": "Parc Yoyogi",
+        "description": "Immense parc pour voir les cosplayers et le sanctuaire Meiji.",
+        "price": 0
+      },
+      {
+        "name": "Harajuku Takeshita Street",
+        "description": "La rue de la mode Kawaii, des crêpes sucrées et du shopping excentrique.",
+        "price": 0
+      },
+      {
+        "name": "Tokyo DisneySea",
+        "description": "Parc d'attraction unique au monde sur le thème de la mer et de l'aventure.",
+        "price": 65
+      }
+    ],
+    "restaurants": [
+      {
+        "name": "T's Tantan",
+        "description": "Ramen 100% Vegan délicieux dans la gare de Tokyo.",
+        "price": 10
+      },
+      {
+        "name": "Sukiyabashi Jiro",
+        "description": "Sushi légendaire (Omakase). Expérience de luxe très rapide.",
+        "price": 300
+      },
+      {
+        "name": "Kaikaya by the Sea",
+        "description": "Fusion fruits de mer et japonais. Ambiance festive.",
+        "price": 50
+      },
+      {
+        "name": "Gonpachi (Kill Bill)",
+        "description": "Izakaya célèbre ayant inspiré le film Kill Bill.",
+        "price": 40
+      },
+      {
+        "name": "McDonald's Akihabara",
+        "description": "Testez le Teriyaki McBurger, exclusivité japonaise.",
+        "price": 7
+      },
+      {
+        "name": "Yoshinoya",
+        "description": "Chaîne japonaise de Gyudon (bol de bœuf) très populaire et pas chère.",
+        "price": 5
+      },
+      {
+        "name": "CoCo Ichibanya",
+        "description": "Le roi du curry japonais, personnalisable et bon marché.",
+        "price": 8
+      },
+      {
+        "name": "7-Eleven (Konbini)",
+        "description": "Les meilleurs onigiris, bentos et poulet frit pour un repas complet.",
+        "price": 5
+      },
+      {
+        "name": "Mos Burger",
+        "description": "Chaîne de burgers japonaise locale, célèbre pour son burger au riz.",
+        "price": 8
+      },
+      {
+        "name": "Narisawa",
+        "description": "Cuisine Satoyama innovante (nature et forêt). Un des meilleurs restaurants d'Asie.",
+        "price": 350
+      },
+      {
+        "name": "Kobe Beef Kaiseki 511",
+        "description": "Spécialiste du bœuf de Kobe A5 très haut de gamme. Fondant exceptionnel.",
+        "price": 180
+      }
+    ]
+  },
+  "New York": {
+    "activities": [
+      {
+        "name": "Central Park Zoo",
+        "description": "Petit zoo charmant au cœur de Manhattan.",
+        "price": 19
+      },
+      {
+        "name": "MOMA",
+        "description": "Musée d'Art Moderne (Warhol, Van Gogh).",
+        "price": 28
+      },
+      {
+        "name": "Comédie Musicale Broadway",
+        "description": "Place standard pour un show célèbre (Lion King, Hamilton).",
+        "price": 120
+      },
+      {
+        "name": "Helicopter Tour",
+        "description": "Survol de 15 min de Manhattan et la Statue de la Liberté.",
+        "price": 230
+      },
+      {
+        "name": "Ferry de Staten Island",
+        "description": "Traversée gratuite offrant une vue superbe sur la Statue de la Liberté.",
+        "price": 0
+      },
+      {
+        "name": "High Line Park",
+        "description": "Promenade sur une ancienne voie ferrée aérienne.",
+        "price": 0
+      },
+      {
+        "name": "Summit One Vanderbilt",
+        "description": "Observatoire moderne avec salles de miroirs et vue plongeante sur l'Empire State.",
+        "price": 42
+      },
+      {
+        "name": "Pont de Brooklyn",
+        "description": "Traversée à pied du pont mythique reliant Manhattan à Brooklyn.",
+        "price": 0
+      }
+    ],
+    "restaurants": [
+      {
+        "name": "Dirt Candy",
+        "description": "Gastronomie végétarienne inventive (Menu dégustation).",
+        "price": 95
+      },
+      {
+        "name": "Peter Luger Steak House",
+        "description": "Le steakhouse légendaire. Cash only.",
+        "price": 110
+      },
+      {
+        "name": "Joe's Pizza",
+        "description": "La part de pizza new-yorkaise authentique (2 parts + boisson).",
+        "price": 10
+      },
+      {
+        "name": "Levain Bakery",
+        "description": "Les cookies les plus célèbres de NY.",
+        "price": 8
+      },
+      {
+        "name": "Shake Shack Madison Square",
+        "description": "Le Shake Shack original dans le parc. Burgers iconiques.",
+        "price": 15
+      },
+      {
+        "name": "McDonald's Times Square",
+        "description": "Le flagship store géant avec vue sur les écrans.",
+        "price": 12
+      },
+      {
+        "name": "The Halal Guys",
+        "description": "Chariot de rue légendaire. Assiette de poulet sur riz (Chicken over rice).",
+        "price": 10
+      },
+      {
+        "name": "Gray's Papaya",
+        "description": "Les hot-dogs les moins chers et les plus connus de NY (Recession Special).",
+        "price": 6
+      },
+      {
+        "name": "Wendy's",
+        "description": "Chaîne connue pour ses burgers carrés et ses glaces Frosty.",
+        "price": 10
+      },
+      {
+        "name": "Per Se",
+        "description": "Le restaurant 3 étoiles de Thomas Keller. Menu dégustation français ultra-luxe.",
+        "price": 395
+      },
+      {
+        "name": "Eleven Madison Park",
+        "description": "Restaurant 3 étoiles Michelin devenu entièrement Vegan (Plant-based).",
+        "price": 365
+      }
+    ]
+  },
+  "Berlin": {
+    "activities": [
+      {
+        "name": "Berghain",
+        "description": "Club techno mythique (Prix de l'entrée si accepté).",
+        "price": 25
+      },
+      {
+        "name": "East Side Gallery",
+        "description": "Balade le long du mur peint.",
+        "price": 0
+      },
+      {
+        "name": "Legoland Discovery Centre",
+        "description": "Parc intérieur Lego pour enfants.",
+        "price": 24
+      },
+      {
+        "name": "Tour Télévision (Fernsehturm)",
+        "description": "Vue panoramique sur Berlin et coupe-file.",
+        "price": 28
+      },
+      {
+        "name": "Mémorial de l'Holocauste",
+        "description": "Labyrinthe de stèles en béton. Lieu de mémoire poignant.",
+        "price": 0
+      },
+      {
+        "name": "Parc de Tempelhof",
+        "description": "Promenade sur les pistes d'un ancien aéroport désaffecté.",
+        "price": 0
+      },
+      {
+        "name": "Berliner Dom",
+        "description": "Visite de la cathédrale historique et de sa coupole.",
+        "price": 10
+      },
+      {
+        "name": "Mémorial du Mur de Berlin",
+        "description": "Site historique Bernauer Strasse expliquant la division de la ville.",
+        "price": 0
+      }
+    ],
+    "restaurants": [
+      {
+        "name": "Cookies Cream",
+        "description": "Gastronomie végétarienne étoilée.",
+        "price": 90
+      },
+      {
+        "name": "Mustafa's Gemüse Kebap",
+        "description": "Le kebab le plus célèbre de la ville.",
+        "price": 8
+      },
+      {
+        "name": "Burgermeister",
+        "description": "Burgers servis dans d'anciennes toilettes publiques.",
+        "price": 12
+      },
+      {
+        "name": "Kopps",
+        "description": "Brunch Vegan le week-end, très varié.",
+        "price": 25
+      },
+      {
+        "name": "Curry 36",
+        "description": "Le spot incontournable pour manger une Currywurst debout.",
+        "price": 6
+      },
+      {
+        "name": "Burger King Alexanderplatz",
+        "description": "Grand Burger King central, pratique et rapide.",
+        "price": 9
+      },
+      {
+        "name": "Scheers Schnitzel",
+        "description": "Schnitzels (escalopes panées) authentiques et pas chères.",
+        "price": 11
+      },
+      {
+        "name": "Döner Turm",
+        "description": "Kebab de quartier ouvert tard, pas cher et copieux.",
+        "price": 6
+      },
+      {
+        "name": "McDonald's Checkpoint Charlie",
+        "description": "McDo situé juste à côté du site historique.",
+        "price": 9
+      },
+      {
+        "name": "Tim Raue",
+        "description": "2 étoiles Michelin. Cuisine fusion asiatique sans gluten ni sucre blanc (Chef's Table).",
+        "price": 260
+      },
+      {
+        "name": "Lorenz Adlon Esszimmer",
+        "description": "Restaurant chic avec vue directe sur la Porte de Brandebourg.",
+        "price": 230
+      }
+    ]
+  },
+  "London": {
+    "activities": [
+      {
+        "name": "Harry Potter Studios",
+        "description": "Visite des décors des films (Transport inclus).",
+        "price": 105
+      },
+      {
+        "name": "London Eye",
+        "description": "Grande roue panoramique.",
+        "price": 38
+      },
+      {
+        "name": "British Museum",
+        "description": "Musée d'histoire et culture.",
+        "price": 0
+      },
+      {
+        "name": "Tour de Londres",
+        "description": "Visite de la forteresse et des joyaux de la couronne.",
+        "price": 35
+      },
+      {
+        "name": "Hyde Park",
+        "description": "Le plus grand parc du centre de Londres, idéal pour voir des écureuils.",
+        "price": 0
+      },
+      {
+        "name": "Relève de la Garde",
+        "description": "Cérémonie militaire devant Buckingham Palace (matin).",
+        "price": 0
+      },
+      {
+        "name": "The Shard (The View)",
+        "description": "Vue panoramique depuis le plus haut gratte-ciel de Londres.",
+        "price": 32
+      },
+      {
+        "name": "Westminster Abbey",
+        "description": "Lieu des couronnements et mariages royaux.",
+        "price": 27
+      }
+    ],
+    "restaurants": [
+      {
+        "name": "Mildreds Soho",
+        "description": "Institution végétarienne et vegan internationale.",
+        "price": 35
+      },
+      {
+        "name": "Dishoom",
+        "description": "Cuisine indienne de Bombay, très populaire.",
+        "price": 40
+      },
+      {
+        "name": "Sketch (The Gallery)",
+        "description": "Dîner dans la salle rose célèbre. Moderne et chic.",
+        "price": 120
+      },
+      {
+        "name": "Borough Market",
+        "description": "Street food variée au marché.",
+        "price": 15
+      },
+      {
+        "name": "Greggs",
+        "description": "L'institution britannique du Sausage Roll pas cher.",
+        "price": 3
+      },
+      {
+        "name": "Nando's",
+        "description": "Chaîne célèbre pour son poulet péri-péri. Le favori des londoniens.",
+        "price": 15
+      },
+      {
+        "name": "Pret A Manger",
+        "description": "Sandwiches frais et bio à emporter, présents à chaque coin de rue.",
+        "price": 8
+      },
+      {
+        "name": "McDonald's Oxford Street",
+        "description": "Halte rapide pendant le shopping.",
+        "price": 9
+      },
+      {
+        "name": "Five Guys Covent Garden",
+        "description": "Burgers et frites à la cacahuète, un peu plus cher mais copieux.",
+        "price": 18
+      },
+      {
+        "name": "Restaurant Gordon Ramsay",
+        "description": "Le restaurant 3 étoiles du célèbre chef à Chelsea. Cuisine française fine.",
+        "price": 220
+      },
+      {
+        "name": "The Ritz Restaurant",
+        "description": "Cadre somptueux Louis XVI, service à l'anglaise et orchestre.",
+        "price": 150
+      }
+    ]
+  },
+  "Bangkok": {
+    "activities": [
+      {
+        "name": "Marché Flottant Damnoen Saduak",
+        "description": "Excursion demi-journée avec bateau.",
+        "price": 25
+      },
+      {
+        "name": "Wat Arun",
+        "description": "Temple de l'Aube.",
+        "price": 3
+      },
+      {
+        "name": "Massage Thaï Traditionnel",
+        "description": "Massage d'une heure au Wat Pho.",
+        "price": 15
+      },
+      {
+        "name": "Sky Bar (Lebua)",
+        "description": "Accès gratuit, prix d'un cocktail obligatoire.",
+        "price": 28
+      },
+      {
+        "name": "Parc Lumpini",
+        "description": "Le poumon vert de la ville, on peut y voir des varans en liberté.",
+        "price": 0
+      },
+      {
+        "name": "Marché de Chatuchak",
+        "description": "Immense marché du week-end, entrée libre.",
+        "price": 0
+      },
+      {
+        "name": "Maison de Jim Thompson",
+        "description": "Musée d'architecture traditionnelle en teck et histoire de la soie.",
+        "price": 6
+      },
+      {
+        "name": "Wat Saket (Montagne d'Or)",
+        "description": "Temple sur une colline offrant une vue panoramique sur la ville.",
+        "price": 2
+      }
+    ],
+    "restaurants": [
+      {
+        "name": "Veganerie Concept",
+        "description": "Desserts et plats comfort food Vegan.",
+        "price": 15
+      },
+      {
+        "name": "Jay Fai",
+        "description": "Street food étoilée (Omelette crabe).",
+        "price": 35
+      },
+      {
+        "name": "Gaggan Anand",
+        "description": "Expérience gastronomique indienne progressive.",
+        "price": 300
+      },
+      {
+        "name": "Thip Samai",
+        "description": "Le Pad Thai le plus célèbre.",
+        "price": 8
+      },
+      {
+        "name": "McDonald's Khaosan Road",
+        "description": "Célèbre pour le Ronald McDonald qui fait le Wai (salut thaï) et les Corn Pies.",
+        "price": 6
+      },
+      {
+        "name": "7-Eleven",
+        "description": "Les toasties (croque-monsieur) chauffés sur place sont une religion ici.",
+        "price": 2
+      },
+      {
+        "name": "Pier 21 Food Court",
+        "description": "Au Terminal 21, probablement le food court le moins cher et le plus propre.",
+        "price": 3
+      },
+      {
+        "name": "Burger King Nana",
+        "description": "Ouvert tard, populaire auprès des touristes.",
+        "price": 8
+      },
+      {
+        "name": "Jok Pochana",
+        "description": "Street food dans une ruelle, cuisine locale simple et pas chère.",
+        "price": 4
+      },
+      {
+        "name": "Sorn",
+        "description": "Cuisine du sud de la Thaïlande très épicée et raffinée, 2 étoiles Michelin.",
+        "price": 150
+      },
+      {
+        "name": "Le Normandie",
+        "description": "Gastronomie française classique au Mandarin Oriental avec vue sur le fleuve.",
+        "price": 200
+      }
+    ]
+  },
+  "Lisbonne": {
+    "activities": [
+      {
+        "name": "Tram 28",
+        "description": "Ticket pour le tramway historique.",
+        "price": 3
+      },
+      {
+        "name": "Oceanário de Lisboa",
+        "description": "Grand aquarium.",
+        "price": 25
+      },
+      {
+        "name": "Palais de Pena (Sintra)",
+        "description": "Entrée du palais coloré et parc.",
+        "price": 20
+      },
+      {
+        "name": "Tour de Belém",
+        "description": "Entrée de la forteresse.",
+        "price": 8
+      },
+      {
+        "name": "Miradouro da Senhora do Monte",
+        "description": "Le point de vue le plus haut de la ville, coucher de soleil incroyable.",
+        "price": 0
+      },
+      {
+        "name": "LX Factory",
+        "description": "Ancienne zone industrielle devenue quartier branché (entrée libre).",
+        "price": 0
+      },
+      {
+        "name": "Musée Calouste Gulbenkian",
+        "description": "L'une des plus belles collections d'art privées du monde.",
+        "price": 10
+      },
+      {
+        "name": "Elevador de Santa Justa",
+        "description": "Ascenseur néogothique offrant une vue sur le centre-ville.",
+        "price": 5
+      }
+    ],
+    "restaurants": [
+      {
+        "name": "Ao 26 - Vegan Food Project",
+        "description": "Cuisine portugaise vegan.",
+        "price": 25
+      },
+      {
+        "name": "Time Out Market",
+        "description": "Plats de chefs au marché (plat + boisson).",
+        "price": 20
+      },
+      {
+        "name": "Cervejaria Ramiro",
+        "description": "Fruits de mer et crustacés frais.",
+        "price": 55
+      },
+      {
+        "name": "Pasteis de Belém",
+        "description": "2 tartelettes et un café.",
+        "price": 5
+      },
+      {
+        "name": "McDonald's Rossio",
+        "description": "L'un des plus beaux McDo du monde, décor Art Déco.",
+        "price": 7
+      },
+      {
+        "name": "Casa das Bifanas",
+        "description": "Le sandwich au porc typique, gras et pas cher.",
+        "price": 4
+      },
+      {
+        "name": "Burger King Baixa",
+        "description": "Refill de boisson gratuit, pratique au centre.",
+        "price": 8
+      },
+      {
+        "name": "A Provinciana",
+        "description": "Cantine cachée, plats du jour copieux à prix imbattable.",
+        "price": 10
+      },
+      {
+        "name": "Pingo Doce (Cafétéria)",
+        "description": "Supermarché proposant des plats chauds très économiques.",
+        "price": 6
+      },
+      {
+        "name": "Belcanto",
+        "description": "Le restaurant du chef José Avillez, 2 étoiles Michelin. Cuisine portugaise réinventée.",
+        "price": 200
+      },
+      {
+        "name": "Alma",
+        "description": "Cuisine d'auteur au cœur du Chiado, ambiance sophistiquée.",
+        "price": 160
+      }
+    ]
+  },
+  "Rome": {
+    "activities": [
+      {
+        "name": "Colisée, Forum & Palatin",
+        "description": "Billet combiné parc archéologique.",
+        "price": 18
+      },
+      {
+        "name": "Musées du Vatican",
+        "description": "Entrée musées et Chapelle Sixtine.",
+        "price": 20
+      },
+      {
+        "name": "Vespa Tour",
+        "description": "Location scooter pour la journée.",
+        "price": 60
+      },
+      {
+        "name": "Panthéon",
+        "description": "Entrée visite basilique.",
+        "price": 5
+      },
+      {
+        "name": "Place d'Espagne (Scalinata)",
+        "description": "Les fameuses marches, lieu de rencontre gratuit.",
+        "price": 0
+      },
+      {
+        "name": "Piazza Navona",
+        "description": "Magnifique place avec fontaines baroques.",
+        "price": 0
+      },
+      {
+        "name": "Château Saint-Ange",
+        "description": "Forteresse et mausolée de l'empereur Hadrien au bord du Tibre.",
+        "price": 15
+      },
+      {
+        "name": "Galerie Borghèse",
+        "description": "Musée abritant des sculptures exceptionnelles du Bernin.",
+        "price": 13
+      }
+    ],
+    "restaurants": [
+      {
+        "name": "Buddy Veggy",
+        "description": "Restaurant romain végétal.",
+        "price": 30
+      },
+      {
+        "name": "Da Enzo al 29",
+        "description": "Trattoria authentique (Pâtes + Vin).",
+        "price": 35
+      },
+      {
+        "name": "La Pergola",
+        "description": "3 étoiles Michelin, menu dégustation.",
+        "price": 450
+      },
+      {
+        "name": "Bonci Pizzarium",
+        "description": "Pizza à la coupe gourmet.",
+        "price": 15
+      },
+      {
+        "name": "McDonald's Termini",
+        "description": "Immense McDo dans la gare, avec bornes automatiques.",
+        "price": 9
+      },
+      {
+        "name": "Pastificio Guerra",
+        "description": "Pâtes fraîches à emporter près de la Place d'Espagne.",
+        "price": 5
+      },
+      {
+        "name": "Burger King Via del Corso",
+        "description": "Standard international en plein centre historique.",
+        "price": 9
+      },
+      {
+        "name": "Alice Pizza",
+        "description": "Chaîne de pizza à la coupe (al taglio) très bon marché.",
+        "price": 6
+      },
+      {
+        "name": "Supplizio",
+        "description": "Le temple du suppli (boule de riz frite), street food romaine.",
+        "price": 4
+      },
+      {
+        "name": "Il Pagliaccio",
+        "description": "Cuisine fusion italo-asiatique 2 étoiles, ambiance intime.",
+        "price": 200
+      },
+      {
+        "name": "Aroma",
+        "description": "Restaurant étoilé avec vue directe et imprenable sur le Colisée.",
+        "price": 150
+      }
+    ]
+  },
+  "Madrid": {
+    "activities": [
+      {
+        "name": "Parc Warner",
+        "description": "Billet entrée parc d'attraction.",
+        "price": 45
+      },
+      {
+        "name": "Musée du Prado",
+        "description": "Entrée musée d'art.",
+        "price": 15
+      },
+      {
+        "name": "Stade Santiago Bernabéu",
+        "description": "Visite du stade du Real Madrid.",
+        "price": 28
+      },
+      {
+        "name": "Palais Royal",
+        "description": "Visite des appartements royaux.",
+        "price": 14
+      },
+      {
+        "name": "Parc du Retiro",
+        "description": "Immense parc gratuit, idéal pour flâner.",
+        "price": 0
+      },
+      {
+        "name": "Temple de Debod",
+        "description": "Temple égyptien en plein Madrid, gratuit, superbe au coucher du soleil.",
+        "price": 0
+      },
+      {
+        "name": "Musée Thyssen-Bornemisza",
+        "description": "Musée d'art complétant le Prado et le Reina Sofia.",
+        "price": 13
+      },
+      {
+        "name": "Plaza Mayor",
+        "description": "La place centrale historique de Madrid, entourée d'arcades.",
+        "price": 0
+      }
+    ],
+    "restaurants": [
+      {
+        "name": "Vega",
+        "description": "Tapas et plats espagnols Vegan.",
+        "price": 25
+      },
+      {
+        "name": "Sobrino de Botín",
+        "description": "Le plus vieux restaurant, spécialité cochon de lait.",
+        "price": 60
+      },
+      {
+        "name": "Mercado de San Miguel",
+        "description": "Tapas variées et vin.",
+        "price": 35
+      },
+      {
+        "name": "DiverXO",
+        "description": "3 étoiles Michelin, expérience unique.",
+        "price": 365
+      },
+      {
+        "name": "100 Montaditos",
+        "description": "Chaîne de petits sandwichs ultra pas chers (certains jours à 1€).",
+        "price": 5
+      },
+      {
+        "name": "McDonald's Gran Via",
+        "description": "Situé sur l'artère principale, bâtiment historique.",
+        "price": 8
+      },
+      {
+        "name": "Chocolatería San Ginés",
+        "description": "Les churros con chocolate les plus célèbres, ouverts 24h/24.",
+        "price": 6
+      },
+      {
+        "name": "Burger King Sol",
+        "description": "En plein sur la place Puerta del Sol.",
+        "price": 8
+      },
+      {
+        "name": "Rodilla",
+        "description": "Chaîne espagnole de sandwichs froids triangulaires.",
+        "price": 7
+      },
+      {
+        "name": "Coque",
+        "description": "2 étoiles Michelin. Immense expérience culinaire par les frères Sandoval.",
+        "price": 280
+      },
+      {
+        "name": "Paco Roncero Restaurante",
+        "description": "Situé dans le Casino de Madrid, cuisine avant-gardiste et terrasse superbe.",
+        "price": 190
+      }
+    ]
+  },
+  "Sydney": {
+    "activities": [
+      {
+        "name": "Taronga Zoo",
+        "description": "Entrée Zoo + Ferry.",
+        "price": 35
+      },
+      {
+        "name": "Bondi Beach Surf Lesson",
+        "description": "Cours de surf de 2h en groupe.",
+        "price": 65
+      },
+      {
+        "name": "Opéra de Sydney",
+        "description": "Visite guidée de l'intérieur (1h).",
+        "price": 28
+      },
+      {
+        "name": "Sydney Harbour Bridge Climb",
+        "description": "Escalade guidée de l'arche du pont.",
+        "price": 190
+      },
+      {
+        "name": "Royal Botanic Garden",
+        "description": "Jardins magnifiques avec vue sur l'Opéra, entrée libre.",
+        "price": 0
+      },
+      {
+        "name": "Darling Harbour Walk",
+        "description": "Promenade animée au bord de l'eau.",
+        "price": 0
+      },
+      {
+        "name": "Ferry pour Manly",
+        "description": "Traversée en bateau emblématique avec vue sur la baie.",
+        "price": 6
+      },
+      {
+        "name": "Sea Life Sydney Aquarium",
+        "description": "Aquarium spectaculaire avec tunnels sous l'eau (requins, dugongs).",
+        "price": 30
+      }
+    ],
+    "restaurants": [
+      {
+        "name": "Yellow",
+        "description": "Menu dégustation 100% végétarien.",
+        "price": 110
+      },
+      {
+        "name": "Icebergs Dining Room",
+        "description": "Vue océan, menu italien raffiné.",
+        "price": 140
+      },
+      {
+        "name": "The Grounds of Alexandria",
+        "description": "Brunch copieux dans un jardin.",
+        "price": 35
+      },
+      {
+        "name": "Mr. Wong",
+        "description": "Dim Sum et canard laqué chic.",
+        "price": 80
+      },
+      {
+        "name": "McDonald's (Maccas)",
+        "description": "Les Australiens l'appellent Maccas. Menu standard.",
+        "price": 10
+      },
+      {
+        "name": "Hungry Jack's",
+        "description": "C'est le nom de Burger King en Australie. Whopper classique.",
+        "price": 9
+      },
+      {
+        "name": "Pie Face",
+        "description": "Chaîne de tartes à la viande (Meat Pies) emblématiques.",
+        "price": 6
+      },
+      {
+        "name": "Harry's Cafe de Wheels",
+        "description": "Camion légendaire servant des tartes avec purée et pois.",
+        "price": 8
+      },
+      {
+        "name": "Sushi Hub",
+        "description": "Sushi rolls à emporter très frais et bon marché.",
+        "price": 5
+      },
+      {
+        "name": "Bennelong",
+        "description": "Restaurant gastronomique situé à l'intérieur même des voiles de l'Opéra.",
+        "price": 180
+      },
+      {
+        "name": "Sixpenny",
+        "description": "Petit restaurant moderne australien très réputé, menu dégustation.",
+        "price": 160
+      }
+    ]
+  }
+}
