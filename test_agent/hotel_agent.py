@@ -35,8 +35,11 @@ def search_hotels(city: str, budget: float = 1000000, amenities: str = None,
         params = [f"%{city}%", budget]
 
         if amenities is not None:
-            query += " AND amenities LIKE ?"
-            params.append(f"%{amenities}%")
+            for amenity in amenities.split(","):
+                amenity = amenity.strip()
+                if amenity:
+                    query += " AND amenities LIKE ?"
+                    params.append(f"%{amenity}%")
 
         if date_start and date_end:
             query += " AND available_start <= ? AND available_end >= ?"

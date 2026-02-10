@@ -196,6 +196,11 @@ def _parse_activities(text: str) -> list:
         if not line:
             continue
 
+        # Exclure les lignes qui sont clairement des hôtels
+        lower_line = line.lower()
+        if any(h in lower_line for h in ["€/nuit", "dispo:", "dispo :", "services:", "services :"]):
+            continue
+
         price_match = re.search(r"([\d.,]+)\s*€", line)
         if not price_match:
             continue
@@ -263,6 +268,12 @@ def _parse_hotels(text: str) -> list:
         if not line.startswith("-"):
             continue
 
+        # Exclure les lignes qui sont clairement des activités/restaurants
+        lower_line = line.lower()
+        if any(a in lower_line for a in ["activité", "activite", "restaurant", "musée", "musee", "visite"]):
+            if "hotel" not in lower_line and "€/nuit" not in lower_line:
+                continue
+
         price_match = re.search(r"([\d.,]+)\s*€(?:/nuit)?", line)
         if not price_match:
             continue
@@ -326,6 +337,7 @@ async def _run_supervisor_streaming(prompt_text: str, agent=None):
     prompt = Message(role="user", parts=[Part(text=prompt_text)])
 
     full_text = ""
+    tool_responses_text = ""
     event_count = 0
 
     print("\n" + "=" * 60)
@@ -389,6 +401,12 @@ async def _run_supervisor_streaming(prompt_text: str, agent=None):
                         resp_str = resp_str[:200] + "..."
                     print(f"  << TOOL RESPONSE ({resp_name}): {resp_str}")
 
+                    # Capturer le résultat des outils métier (fallback si le sub-agent ne génère pas de texte)
+                    if resp_name not in ('transfer_to_agent',) and isinstance(resp_data, dict):
+                        result_val = resp_data.get('result', '')
+                        if result_val and isinstance(result_val, str):
+                            tool_responses_text += result_val + "\n"
+
                     yield f"data: {json.dumps({'type': 'log', 'message': f'Resultat de {resp_name} recu'}, ensure_ascii=False)}\n\n"
 
                 # Texte normal
@@ -396,6 +414,11 @@ async def _run_supervisor_streaming(prompt_text: str, agent=None):
                     text_preview = part.text[:200] + "..." if len(part.text) > 200 else part.text
                     print(f"  TEXT [{author}]: {text_preview}")
                     full_text += part.text
+
+    # Fallback : si le sub-agent n'a pas généré de texte mais qu'on a des tool responses
+    if not full_text.strip() and tool_responses_text.strip():
+        print("WARN: full_text vide, utilisation des tool_responses comme fallback")
+        full_text = tool_responses_text.strip()
 
     print("\n" + "=" * 60)
     print(f"  SUPERVISOR - FIN ({event_count} events)")
@@ -445,10 +468,14 @@ async def stream_search(
             prompt_parts.append(f"Compagnie preferee : {airline}.")
         if activities and activities.strip():
             prompt_parts.append(f"Je cherche des activites/restaurants : {activities}.")
+        else :
+            prompt_parts.append(f"Ajouter toutes les activités et restaurants.")
         if hotel_budget_max:
             prompt_parts.append(f"Budget hotel max : {hotel_budget_max}EUR/nuit.")
         if amenities and amenities.strip():
             prompt_parts.append(f"Services hotel souhaites : {amenities}.")
+        else:
+            prompt_parts.append(f"Tous les hotels sont attendus.")
         if preferences:
             prompt_parts.append(f"Preferences : {preferences}.")
 
@@ -573,14 +600,16 @@ async def chat_refine(request: Request, message: str, origin: str, destination: 
             activities_text = (activities_text + "\n" + restaurants_text).strip()
         hotels_text = _extract_section(full_response, "### DEBUT_HOTELS ###", "### FIN_HOTELS ###")
 
+        # Pas de markers trouvés → parser la réponse brute pour CHAQUE type indépendamment
+        # (contrairement à stream_search, on ne met PAS tout dans tout)
         if not flights_text and not activities_text and not hotels_text:
-            flights_text = full_response
-            activities_text = full_response
-            hotels_text = full_response
-
-        flights_data = _parse_flights(flights_text)
-        activities_data = _parse_activities(activities_text)
-        hotels_data = _parse_hotels(hotels_text)
+            flights_data = _parse_flights(full_response)
+            activities_data = _parse_activities(full_response)
+            hotels_data = _parse_hotels(full_response)
+        else:
+            flights_data = _parse_flights(flights_text) if flights_text else []
+            activities_data = _parse_activities(activities_text) if activities_text else []
+            hotels_data = _parse_hotels(hotels_text) if hotels_text else []
 
         # Message dynamique selon ce qui a été trouvé
         parts = []
@@ -597,7 +626,16 @@ async def chat_refine(request: Request, message: str, origin: str, destination: 
             response_message = "Désolé, je n'ai rien trouvé pour cette recherche."
 
         yield f"data: {json.dumps({'type': 'response', 'message': response_message})}\n\n"
-        yield f"data: {json.dumps({'type': 'results', 'flights': flights_data, 'activities': activities_data, 'hotels': hotels_data})}\n\n"
+
+        # N'envoyer au front QUE les catégories non-vides (pour ne pas écraser les résultats existants)
+        results_payload = {}
+        if flights_data:
+            results_payload['flights'] = flights_data
+        if activities_data:
+            results_payload['activities'] = activities_data
+        if hotels_data:
+            results_payload['hotels'] = hotels_data
+        yield f"data: {json.dumps({'type': 'results', **results_payload})}\n\n"
         yield f"data: {json.dumps({'type': 'complete', 'message': 'Termine !'})}\n\n"
 
         print(f"CHAT: {len(flights_data)} vols | {len(activities_data)} act | {len(hotels_data)} hotels")
