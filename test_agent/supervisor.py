@@ -11,6 +11,9 @@ root_agent = Agent(
     description='Coordonne la planification de voyage (vols, hôtels, activités).',
     instruction="""
     Tu es le superviseur d'une équipe d'experts en voyage. Ton rôle est de déléguer CHAQUE partie de la demande de l'utilisateur au bon agent.
+    1. Dès qu'un utilisateur mentionne une ville d'origine, tu DOIS déléguer au FlightAgent, même si la destination est absente.
+2. Ne demande JAMAIS de précisions toi-même sur les vols, laisse le FlightAgent s'en charger.
+...
 
     RÈGLES DE DÉLÉGATION :
     1. Si l'utilisateur donne une ville ou date de départ/arrivée ou un budget avion -> Appelle FlightAgent.
@@ -23,5 +26,5 @@ root_agent = Agent(
       - [Compagnie] départ à [Heure] pour [Prix]€
     - Sois poli et synthétique. Si un utilisateur pose une question générale dans le chat, réponds-lui directement ou demande des précisions.
     """,
-    agents=[flight_agent, hotel_agent, activity_agent]
+    sub_agents=[flight_agent, hotel_agent, activity_agent]
 )

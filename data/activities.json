@@ -40,6 +40,16 @@
         "name": "Sainte-Chapelle",
         "description": "Joyau gothique avec des vitraux spectaculaires, situé sur l'Île de la Cité.",
         "price": 12
+      },
+      {
+        "name": "Hammam de la Grande Mosquée",
+        "description": "Détente orientale absolue avec thé à la menthe et massage.",
+        "price": 45
+      },
+      {
+        "name": "FlyView Paris",
+        "description": "Sensation de vol en jetpack au-dessus de Paris (Réalité Virtuelle).",
+        "price": 19
       }
     ],
     "restaurants": [
@@ -97,6 +107,16 @@
         "name": "Guy Savoy",
         "description": "Élu meilleur restaurant du monde plusieurs années. Célèbre pour sa soupe d'artichaut à la truffe.",
         "price": 480
+      },
+      {
+        "name": "Melt (Oberkampf)",
+        "description": "Le meilleur des grillades barbecue Texan à Paris (Brisket fumé).",
+        "price": 25
+      },
+      {
+        "name": "Le Ciel de Paris",
+        "description": "Vue imprenable sur la Tour Eiffel depuis le 56ème étage de la Tour Montparnasse.",
+        "price": 70
       }
     ]
   },
@@ -242,6 +262,11 @@
         "name": "Pont de Brooklyn",
         "description": "Traversée à pied du pont mythique reliant Manhattan à Brooklyn.",
         "price": 0
+      },
+      {
+        "name": "The Edge",
+        "description": "Vue imprenable et sensation forte sur la plus haute terrasse de l'hémisphère ouest (sol en verre).",
+        "price": 38
       }
     ],
     "restaurants": [
@@ -299,6 +324,11 @@
         "name": "Eleven Madison Park",
         "description": "Restaurant 3 étoiles Michelin devenu entièrement Vegan (Plant-based).",
         "price": 365
+      },
+      {
+        "name": "Gallaghers Steakhouse",
+        "description": "Grillades de bœuf exceptionnelles cuites au feu de bois.",
+        "price": 85
       }
     ]
   },

@@ -79,24 +79,24 @@
                 <div class="form-grid">
                     <div class="input-group">
                         <label>Ville de Départ</label>
-                        <input type="text" name="origin" placeholder="Ex: Paris" required>
+                        <input type="text" name="origin" id="origin" placeholder="Ex: Paris" required>
                     </div>
                     <div class="input-group">
                         <label>Ville d'Arrivée</label>
-                        <input type="text" name="destination" placeholder="Ex: Tokyo" required>
+                        <input type="text" name="destination" id="destination" placeholder="Ex: Tokyo">
                     </div>
                     <div class="input-group">
                         <label>Date de Départ</label>
-                        <input type="date">
+                        <input type="date" name="departure_date" id="departure_date">
                     </div>
                     <div class="input-group">
                         <label>Date de Retour</label>
-                        <input type="date">
+                        <input type="date" name="return_date" id="return_date">
                     </div>
 
                     <div class="input-group last-input">
                         <label>Vos besoins et contraintes</label>
-                        <input type="text" name="preferences">
+                        <input type="text" name="preferences" id="preferences">
                     </div>
                 </div>
 
@@ -108,17 +108,17 @@
                     <div class="form-grid">
                         <div class="input-group">
                             <label>Budget Avion Max (€)</label>
-                            <input type="number" placeholder="Ex: 800">
+                            <input type="number" name="budget_max" id="budget_max" placeholder="Ex: 800">
                         </div>
                         <div class="input-group">
                             <label>Compagnie préférée</label>
-                            <input type="text" placeholder="Ex: Air France">
+                            <input type="text" name="airline" id="airline" placeholder="Ex: Air France">
                         </div>
                     </div>
 
                     <div class="input-group">
                         <label>Prix Hotel Max (par nuit en €)</label>
-                        <input type="number" placeholder="Ex: 150">
+                        <input type="number" name="hotel_budget_max" id="hotel_budget_max" placeholder="Ex: 150">
                     </div>
 
                     <div class="input-group">

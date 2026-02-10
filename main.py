@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 # On charge les variables d'environnement (API Key, etc.)
 load_dotenv()
 
-from test_agent.agent import root_agent
+from test_agent.supervisor import root_agent
 from google.adk.runners import Runner, RunConfig 
 from google.adk.sessions import InMemorySessionService  
 import re
@@ -41,29 +41,40 @@ async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/stream_search")
-async def stream_search(request: Request, origin: str, destination: str, preferences: str = None):
+async def stream_search(
+    request: Request, 
+    origin: str, 
+    destination: str, 
+    preferences: str = None,
+    budget_max: str = None, 
+    airline: str = None,
+    date: str = None
+    ):
     print(f"\n📡 NOUVELLE REQUÊTE STREAMING : {origin} -> {destination}")
     
     # Je m'assure que la variable de secours est bien vide avant de commencer
 
 
     async def event_generator():
-        # 0. On démarre doucement
         yield f"data: {json.dumps({'type': 'log', 'message': f'🔌 Liaison satellite établie...'})}\n\n"
         await asyncio.sleep(0.5)
         
-        # 1. Je prépare le message pour l'agent
-        prompt_text = f"Trouve moi un vol de {origin} à {destination}. Préf: {preferences or 'Aucune'}"
+        prompt_text = f"Je pars de {origin}."
+        if destination: prompt_text += f" Ma destination est {destination}."
+        if date: prompt_text += f" Je souhaite partir le {date}."
+        if budget_max: prompt_text += f" Budget max avion : {budget_max}€."
+        if airline: prompt_text += f" Je préfère voyager avec {airline}."
+        if preferences: prompt_text += f" Notes : {preferences}."
+
         user_msg = Message(role="user", parts=[Part(text=prompt_text)])
         
         yield f"data: {json.dumps({'type': 'log', 'message': f'👤 Client: {prompt_text}'})}\n\n"
 
-        # 2. Config de base (IDs fictifs pour la démo)
         user_id = "user_stream"
         session_id = "session_stream"
         app_name = "travel_agent"
 
-        try:
+        try:    
             await session_service.create_session(
                 user_id=user_id, 
                 session_id=session_id, 
@@ -72,21 +83,17 @@ async def stream_search(request: Request, origin: str, destination: str, prefere
         except Exception:
             pass # Si la session existe déjà, c'est pas grave, on continue
 
-        yield f"data: {json.dumps({'type': 'log', 'message': f'🧠 Réveil de l\'IA {app_name}...'})}\n\n"
+        yield f"data: {json.dumps({'type': 'log', 'message': f'Réveil de l\'IA {app_name}...'})}\n\n"
 
-        # 3. Je prépare mon Runner (c'est lui qui fait tout le boulot)
         runner = Runner(
             agent=root_agent, 
             app_name=app_name, 
             session_service=session_service
         )
         
-        # L'agent a le droit de réfléchir en plusieurs étapes (outils -> réponse)
         run_config = RunConfig(max_llm_calls=10)
         
         yield f"data: {json.dumps({'type': 'log', 'message': '🤖 L\'agent analyse votre demande...'})}\n\n"
-
-        # C'est parti ! On lance la réflexion
         response_generator = runner.run(
             user_id=user_id,
             session_id=session_id,
@@ -99,7 +106,7 @@ async def stream_search(request: Request, origin: str, destination: str, prefere
         # 4. J'écoute tout ce que l'agent a à dire en temps réel
         try:
             for event in response_generator:
-                await asyncio.sleep(0.1) # Petite pause pour l'effet "tape à la machine"
+                await asyncio.sleep(0.1) 
                 
                 log_msg = ""
                 msg_type = "log"
@@ -130,15 +137,22 @@ async def stream_search(request: Request, origin: str, destination: str, prefere
             print(f"DEBUG EXCEPTION: {e}")
             yield f"data: {json.dumps({'type': 'error', 'message': f'erreur : {str(e)}'})}\n\n"
 
-
+        # --- DEBUG MODE ---
+        print(f"\n📝 RÉPONSE BRUTE DE L'AGENT :\n{agent_response}")
+        print(f"-----------------------------------\n")
         flights = []
-        pattern = r"-\s+(.*?)\s+départ à\s+(.*?)\s+pour\s+(.*?)€"
+        # On rend le tiret '-' optionnel (\-?) et on est plus souple sur les espaces
+        pattern = r"\-?\s*(.*?)\s+\((.*?)\)\s*:\s*(.*?)\s*->\s*(.*?)\s*\|\s*départ\s+(.*?)\s+arrivée\s+(.*?)\s+pour\s+(.*?)€"
+        
         matches = re.finditer(pattern, agent_response)
         for match in matches:
             flights.append({
-                "airline": match.group(1).strip(),
-                "departure": match.group(2).strip(),
-                "price": match.group(3).strip()
+                "airline": f"{match.group(1)} ({match.group(2)})",
+                "origin": match.group(3).strip(),
+                "destination": match.group(4).strip(),
+                "departure": match.group(5).strip(),
+                "arrival": match.group(6).strip(),
+                "price": match.group(7).strip()
             })
             
         yield f"data: {json.dumps({'type': 'log', 'message': f'✅ {len(flights)} options trouvées !'})}\n\n"

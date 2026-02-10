@@ -32,24 +32,33 @@ def create_flights_db():
             origin TEXT,
             destination TEXT,
             departure_time TEXT,
+            arrival_time TEXT,
             price REAL,
-            airline TEXT
+            airline TEXT,
+            flight_number TEXT
         )
     ''')
     
-    cursor.execute("DELETE FROM flights") # Reset
+    cursor.execute("DELETE FROM flights")
     
-    for _ in range(60):
+    for _ in range(100): # On augmente un peu pour avoir plus de chances de trouver
         origin, dest = random.sample(CITIES, 2)
-        date = datetime(2026, 3, 1) + timedelta(days=random.randint(0, 60), hours=random.randint(0, 23))
+        # Date de départ
+        dept_date = datetime(2026, 3, 1) + timedelta(days=random.randint(0, 60), hours=random.randint(0, 23), minutes=random.randint(0, 59))
+        # Date d'arrivée (entre 2h et 12h plus tard)
+        arr_date = dept_date + timedelta(hours=random.randint(2, 12))
+        
+        flight_no = f"{random.choice(['AF', 'NH', 'DL', 'LH'])}{random.randint(100, 999)}"
+        
         cursor.execute('''
-            INSERT INTO flights (origin, destination, departure_time, price, airline)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (origin, dest, date.strftime("%Y-%m-%d %H:%M"), random.randint(350, 1400), random.choice(AIRLINES)))
+            INSERT INTO flights (origin, destination, departure_time, arrival_time, price, airline, flight_number)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (origin, dest, dept_date.strftime("%Y-%m-%d %H:%M"), arr_date.strftime("%Y-%m-%d %H:%M"), 
+              random.randint(350, 1400), random.choice(AIRLINES), flight_no))
     
     conn.commit()
     conn.close()
-    print(f" flights.db créé avec 60 vols.")
+    print(f"✅ flights.db mis à jour avec 100 vols (départs et arrivées).")
 
 def create_hotels_db():
     db_path = os.path.join(DATA_DIR, 'hotels.db')
