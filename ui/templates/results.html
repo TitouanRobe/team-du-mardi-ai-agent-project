@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>TravelAgent.ai - Votre Itinéraire</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/chat.css">
 </head>
 
 <body>
@@ -91,7 +92,33 @@
         </div>
     </div>
 
+    <!-- Widget de Chat Flottant -->
+    <div id="chat-widget">
+        <div id="chat-header" onclick="toggleChat()">
+            <h3>💬 Affiner ma recherche</h3>
+            <button id="chat-toggle">−</button>
+        </div>
+        <div id="chat-messages">
+            <div class="chat-message agent">
+                <div class="chat-avatar">🤖</div>
+                <div class="chat-bubble">
+                    Bonjour ! Besoin d'affiner vos résultats ?<br>
+                    Exemples : "seulement vegan", "moins de 150€", "hôtels avec piscine"
+                </div>
+            </div>
+        </div>
+        <div id="chat-input-container">
+            <input type="text" id="chat-input" placeholder="Ex: seulement des restaurants vegan">
+            <button id="chat-send" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
     <script>
+        // Variables globales
+        const origin = "{{ origin or '' }}";
+        const destination = "{{ destination or '' }}";
+        let chatHistory = [];
+
         function openTab(evt, tabName) {
             var i, tabcontent, tablinks;
             tabcontent = document.getElementsByClassName("tab-content");
@@ -105,6 +132,155 @@
             document.getElementById(tabName).classList.add("active");
             evt.currentTarget.classList.add("active");
         }
+
+        // === CHAT FONCTIONS ===
+
+        function toggleChat() {
+            const widget = document.getElementById('chat-widget');
+            const toggle = document.getElementById('chat-toggle');
+            widget.classList.toggle('minimized');
+            toggle.textContent = widget.classList.contains('minimized') ? '+' : '−';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Ajouter message utilisateur
+            appendMessage('user', message);
+            chatHistory.push({ role: 'user', content: message });
+            input.value = '';
+
+            // Désactiver l'input pendant le traitement
+            input.disabled = true;
+            document.getElementById('chat-send').disabled = true;
+
+            // Afficher l'indicateur de chargement
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'chat-message agent';
+            loadingDiv.innerHTML = `
+                <div class="chat-avatar">🤖</div>
+                <div class="chat-loading"><span></span><span></span><span></span></div>
+            `;
+            document.getElementById('chat-messages').appendChild(loadingDiv);
+            scrollToBottom();
+
+            // Appeler le backend pour raffinement
+            const eventSource = new EventSource(`/chat_refine?message=${encodeURIComponent(message)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`);
+
+            let agentMessage = '';
+
+            eventSource.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+
+                if (data.type === 'response') {
+                    agentMessage = data.message;
+                } else if (data.type === 'results') {
+                    // Mettre à jour les onglets
+                    updateResults(data.flights, data.activities, data.hotels);
+                } else if (data.type === 'complete') {
+                    // Retirer le loading et afficher la réponse
+                    loadingDiv.remove();
+                    appendMessage('agent', agentMessage || data.message);
+                    chatHistory.push({ role: 'agent', content: agentMessage || data.message });
+
+                    // Réactiver l'input
+                    input.disabled = false;
+                    document.getElementById('chat-send').disabled = false;
+                    input.focus();
+
+                    eventSource.close();
+                }
+            };
+
+            eventSource.onerror = function () {
+                loadingDiv.remove();
+                appendMessage('agent', "Désolé, une erreur s'est produite. Réessayez.");
+                input.disabled = false;
+                document.getElementById('chat-send').disabled = false;
+                eventSource.close();
+            };
+        }
+
+        function appendMessage(role, text) {
+            const messagesDiv = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${role}`;
+
+            const avatar = role === 'user' ? '👤' : '🤖';
+            messageDiv.innerHTML = `
+                <div class="chat-avatar">${avatar}</div>
+                <div class="chat-bubble">${text}</div>
+            `;
+
+            messagesDiv.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            const messagesDiv = document.getElementById('chat-messages');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function updateResults(flights, activities, hotels) {
+            // Mettre à jour l'onglet Vols
+            updateTab('vols', flights, (flight) => `
+                <div class="result-card flight-card">
+                    <div class="card-info">
+                        <strong>${flight.airline}</strong>
+                        <p>🕒 Départ : ${flight.departure}</p>
+                    </div>
+                    <div class="card-price">${flight.price}€</div>
+                </div>
+            `);
+
+            // Mettre à jour l'onglet Hôtels
+            updateTab('hotels', hotels, (hotel) => `
+                <div class="result-card hotel-card">
+                    <div class="card-info">
+                        <strong>${hotel.name}</strong>
+                        <p>📍 ${hotel.city || ''}</p>
+                        <p>🛎️ ${hotel.amenities || ''}</p>
+                    </div>
+                    <div class="card-price">${hotel.price}€/nuit</div>
+                </div>
+            `);
+
+            // Mettre à jour l'onglet Activités
+            updateTab('activites', activities, (act) => `
+                <div class="result-card activity-card">
+                    <div class="card-tag">${act.type}</div>
+                    <div class="card-info">
+                        <strong>${act.name}</strong>
+                        <p>${act.description}</p>
+                    </div>
+                    <div class="card-price">${act.price}€</div>
+                </div>
+            `);
+
+            // Mettre à jour les compteurs dans les onglets
+            document.querySelector('.tab-btn:nth-child(1)').textContent = `✈️ Vols (${flights.length})`;
+            document.querySelector('.tab-btn:nth-child(2)').textContent = `🏨 Hôtels (${hotels.length})`;
+            document.querySelector('.tab-btn:nth-child(3)').textContent = `🏛️ Activités (${activities.length})`;
+        }
+
+        function updateTab(tabId, items, renderFunc) {
+            const tab = document.getElementById(tabId);
+            if (items.length === 0) {
+                tab.innerHTML = '<p class="empty-msg">Aucun résultat trouvé.</p>';
+            } else {
+                tab.innerHTML = items.map(renderFunc).join('');
+            }
+        }
+
+        // Permettre l'envoi avec Entrée
+        document.getElementById('chat-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
     </script>
 </body>
 
