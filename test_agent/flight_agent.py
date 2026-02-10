@@ -57,7 +57,7 @@ def search_flights(origin: str, destination: str = None, preferred_date: str = N
 
 flight_agent = Agent(
     name="FlightAgent",
-    model="gemini-2.0-flash", 
+    model="gemini-2.5-flash", 
     instruction="""
     Tu es un automate de recherche de vols. INTERDICTION de poser des questions si tu as la ville de départ.
     

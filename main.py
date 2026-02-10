@@ -48,7 +48,8 @@ async def stream_search(
     preferences: str = None,
     budget_max: str = None, 
     airline: str = None,
-    date: str = None
+    date: str = None,
+    activities: str = None  # <-- Nouveau paramètre
     ):
     print(f"\n📡 NOUVELLE REQUÊTE STREAMING : {origin} -> {destination}")
     
@@ -59,12 +60,23 @@ async def stream_search(
         yield f"data: {json.dumps({'type': 'log', 'message': f'🔌 Liaison satellite établie...'})}\n\n"
         await asyncio.sleep(0.5)
         
-        prompt_text = f"Je pars de {origin}."
-        if destination: prompt_text += f" Ma destination est {destination}."
-        if date: prompt_text += f" Je souhaite partir le {date}."
-        if budget_max: prompt_text += f" Budget max avion : {budget_max}€."
-        if airline: prompt_text += f" Je préfère voyager avec {airline}."
-        if preferences: prompt_text += f" Notes : {preferences}."
+        # On construit un ordre de mission clair et impératif
+        # Dans main.py, modifie la construction du prompt :
+        # Dans ton main.py, à l'intérieur de event_generator()
+        prompt_text = "ORDRE DE MISSION PRIORITAIRE :\n"
+        prompt_text += f"1. [ACTION_VOLS] : Trouve des vols de {origin} vers {destination or 'nimporte où'}\n"
+
+        if activities:
+            target = destination if destination else origin
+            prompt_text += f"2. [ACTION_ACTIVITES] : Cherche impérativement des {activities} à {target}\n"
+
+        prompt_text += "\nCONSIGNE : Exécute l'ACTION 1, puis l'ACTION 2 sans t'arrêter entre les deux."
+            
+        if budget_max:
+            prompt_text += f"CONTRAINTE BUDGET : Maximum {budget_max}€ pour l'avion\n"
+            
+        if preferences:
+            prompt_text += f"NOTES : {preferences}\n"
 
         user_msg = Message(role="user", parts=[Part(text=prompt_text)])
         
@@ -91,7 +103,7 @@ async def stream_search(
             session_service=session_service
         )
         
-        run_config = RunConfig(max_llm_calls=10)
+        run_config = RunConfig(max_llm_calls=40)  # Augmenté pour permettre plusieurs tours d'agents
         
         yield f"data: {json.dumps({'type': 'log', 'message': '🤖 L\'agent analyse votre demande...'})}\n\n"
         response_generator = runner.run(
@@ -157,12 +169,28 @@ async def stream_search(
             
         yield f"data: {json.dumps({'type': 'log', 'message': f'✅ {len(flights)} options trouvées !'})}\n\n"
         
+
+        act_list = []
+
+        act_pattern = r"(Activité|Restaurant),\s*(.*?),\s*(.*?)€\s*,\s*(.*)"
+        
+        act_matches = re.finditer(act_pattern, agent_response)
+        for m in act_matches:
+            act_list.append({
+                "type": m.group(1),
+                "name": m.group(2),
+                "price": m.group(3),
+                "description": m.group(4)
+            })
+
+        
         final_html = templates.get_template("results.html").render({
             "request": request, 
             "response": agent_response,
             "origin": origin,
             "destination": destination,
-            "flights": flights
+            "flights": flights,
+            "activities": act_list
         })
         
         yield f"data: {json.dumps({'type': 'complete', 'html': final_html})}\n\n"

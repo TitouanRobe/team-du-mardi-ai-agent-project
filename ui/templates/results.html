@@ -30,39 +30,68 @@
     </header>
 
     <div class="results-container">
-        <h1>✈️ Votre Plan de Voyage</h1>
-        <p class="subtitle">Recherche pour : <strong>{{ origin }}</strong> vers <strong>{{ destination }}</strong></p>
+        <h2>Votre itinéraire pour {{ destination or origin }}</h2>
 
-        {% if flights %}
-        <!-- Affichage "Stylé" sous forme de cartes -->
-        <div class="flights-grid">
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="openTab(event, 'vols')">✈️ Vols ({{ flights|length }})</button>
+            <button class="tab-btn" onclick="openTab(event, 'hotels')">🏨 Hôtels (0)</button>
+            <button class="tab-btn" onclick="openTab(event, 'activites')">🏛️ Activités ({{ activities|length
+                }})</button>
+        </div>
+
+        <div id="vols" class="tab-content active">
+            {% if flights %}
             {% for flight in flights %}
-            <div class="flight-card">
-                <div class="flight-airline">
-                    <div class="airline-logo-placeholder">✈️</div>
-                    <div class="flight-details">
-                        <h3>{{ flight.airline }}</h3>
-                        <div class="flight-time">🕒 Départ : {{ flight.departure }}</div>
-                    </div>
+            <div class="result-card flight-card">
+                <div class="card-info">
+                    <strong>{{ flight.airline }}</strong>
+                    <p>🕒 Départ : {{ flight.departure }}</p>
                 </div>
-                <div class="flight-price">
-                    <span class="price-tag">{{ flight.price }} €</span>
-                    <a href="#" class="btn-book">Réserver</a>
-                </div>
+                <div class="card-price">{{ flight.price }}€</div>
             </div>
             {% endfor %}
+            {% else %}
+            <p class="empty-msg">Aucun vol trouvé.</p>
+            {% endif %}
         </div>
-        {% else %}
-        <!-- Fallback : Affichage texte brut si le parsing échoue ou si l'agent blablate -->
-        <div class="no-flights">
-            <p>{{ response }}</p>
-        </div>
-        {% endif %}
 
-        <div style="text-align: center; margin-top: 40px;">
-            <a href="/" class="btn-main">Nouvelle recherche</a>
+        <div id="hotels" class="tab-content">
+            <p class="empty-msg">Recherche d'hôtels bientôt disponible...</p>
+        </div>
+
+        <div id="activites" class="tab-content">
+            {% if activities %}
+            {% for act in activities %}
+            <div class="result-card activity-card">
+                <div class="card-tag">{{ act.type }}</div>
+                <div class="card-info">
+                    <strong>{{ act.name }}</strong>
+                    <p>{{ act.description }}</p>
+                </div>
+                <div class="card-price">{{ act.price }}€</div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="empty-msg">Aucune activité ou restaurant trouvé.</p>
+            {% endif %}
         </div>
     </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
 </body>
 
 </html>

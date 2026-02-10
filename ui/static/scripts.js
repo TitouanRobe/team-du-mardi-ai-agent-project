@@ -12,19 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingOverlay = document.getElementById('loading-overlay');
     const resultContainer = document.getElementById('resultContainer');
 
-    // Dans ton écouteur d'événement 'submit' ou ta fonction de recherche :
-    const origin = document.getElementById('origin').value;
-    const dest = document.getElementById('destination').value;
-    const pref = document.getElementById('preferences').value;
-    const dateDept = document.getElementById('departure_date').value;
-    const budget = document.getElementById('budget_max').value;
-    const airline = document.getElementById('airline').value;
-
-    // On construit l'URL avec tous les paramètres
-    const url = `/stream_search?origin=${origin}&destination=${dest}&preferences=${pref}&budget_max=${budget}&airline=${airline}&date=${dateDept}`;
-
-    const eventSource = new EventSource(url);
-
     // --- 2. GESTION DE LA MODALE (OUVERTURE / FERMETURE) ---
 
     // Ouvrir la modale
@@ -48,38 +35,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 3. GESTION DE LA SOUMISSION ET DE L'ANIMATION ---
+    // --- 3. GESTION DES OPTIONS AVANCÉES ---
+    const toggleOptions = document.getElementById('toggleOptions');
+    const advancedOptions = document.getElementById('advanced-options');
+
+    if (toggleOptions && advancedOptions) {
+        toggleOptions.onclick = () => {
+            toggleOptions.classList.toggle('active');
+            advancedOptions.classList.toggle('open');
+        };
+    }
+
+    // --- 4. GESTION DE LA SOUMISSION ET DE L'ANIMATION ---
 
     if (travelForm) {
         travelForm.onsubmit = (e) => {
             e.preventDefault(); // Empêche le rechargement
-            console.log("Lancement de la demande Streaming...");
+            console.log("🚀 Lancement de la demande Streaming...");
 
-            // 1. AFFICHER L'ANIMATION + LOGS
+            // A. AFFICHER L'ANIMATION + LOGS
             const startTime = Date.now(); // On note l'heure de départ
             modal.style.display = 'none';
             if (loadingOverlay) {
                 loadingOverlay.style.display = 'flex';
             }
             const logsContainer = document.getElementById('logs');
-            if (logsContainer) logsContainer.innerHTML = '<div>Connnexion au satellite...</div>';
+            if (logsContainer) logsContainer.innerHTML = '<div>Connexion au satellite...</div>';
 
-            // 2. RÉCUPÉRATION DES PARAMÈTRES
-            const formData = new FormData(travelForm);
-            const params = new URLSearchParams();
-            for (const pair of formData.entries()) {
-                params.append(pair[0], pair[1]);
-            }
+            // B. RÉCUPÉRATION DES PARAMÈTRES
+            const origin = document.getElementById('origin').value;
+            const dest = document.getElementById('destination').value;
+            const pref = document.getElementById('preferences').value;
+            const dateDept = document.getElementById('departure_date').value;
+            const budget = document.getElementById('budget_max').value;
+            const airline = document.getElementById('airline').value;
+            const activities = document.getElementById('activities').value;
 
-            // 3. LANCEMENT DU STREAM (EventSource)
+            // On construit l'URL avec tous les paramètres
+            // Note: encodeURIComponent est une bonne pratique pour éviter les bugs avec des espaces ou caractères spéciaux
+            const params = new URLSearchParams({
+                origin: origin,
+                destination: dest,
+                preferences: pref,
+                budget_max: budget,
+                airline: airline,
+                date: dateDept,
+                activities: activities
+            });
+
             const url = `/stream_search?${params.toString()}`;
+
             const eventSource = new EventSource(url);
 
             eventSource.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
 
-                    // --- A. GESTION DES LOGS ---
+                    // --- C. GESTION DES LOGS ---
                     if (data.type === 'log' || data.type === 'tool' || data.type === 'error') {
                         const div = document.createElement('div');
                         div.className = `log-entry ${data.type}`;
@@ -90,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
 
-                    // --- B. ARRIVÉE / MODIFICATION DE PAGE ---
+                    // --- D. ARRIVÉE / MODIFICATION DE PAGE ---
                     else if (data.type === 'complete') {
                         console.log("🛬 Terminé ! Affichage des résultats.");
                         eventSource.close();
@@ -106,9 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             document.open();
                             document.write(data.html);
                             document.close();
-
-                            // MAJ de l'URL pour faire "propre" (Optionnel)
-                            // window.history.pushState({}, "Résultats", "/search");
                         }, remainingTime);
                     }
 
@@ -123,21 +132,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (logsContainer) {
                     const div = document.createElement('div');
                     div.style.color = "red";
-                    div.textContent = "Connexion perdue.";
+                    div.textContent = "> ❌ Connexion perdue.";
                     logsContainer.appendChild(div);
                 }
             };
-        };
-    }
-
-    // --- 4. GESTION DES OPTIONS AVANCÉES ---
-    const toggleOptions = document.getElementById('toggleOptions');
-    const advancedOptions = document.getElementById('advanced-options');
-
-    if (toggleOptions && advancedOptions) {
-        toggleOptions.onclick = () => {
-            advancedOptions.classList.toggle('open');
-            toggleOptions.classList.toggle('active');
         };
     }
 });
