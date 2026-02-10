@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (travelForm) {
         travelForm.onsubmit = (e) => {
             e.preventDefault(); // Empêche le rechargement
-            console.log("🚀 Lancement de la demande Streaming...");
+            console.log("Lancement de la demande Streaming...");
 
             // 1. AFFICHER L'ANIMATION + LOGS
             const startTime = Date.now(); // On note l'heure de départ
@@ -110,10 +110,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (logsContainer) {
                     const div = document.createElement('div');
                     div.style.color = "red";
-                    div.textContent = "> ❌ Connexion perdue.";
+                    div.textContent = "Connexion perdue.";
                     logsContainer.appendChild(div);
                 }
             };
+        };
+    }
+
+    // --- 4. GESTION DES OPTIONS AVANCÉES ---
+    const toggleOptions = document.getElementById('toggleOptions');
+    const advancedOptions = document.getElementById('advanced-options');
+
+    if (toggleOptions && advancedOptions) {
+        toggleOptions.onclick = () => {
+            advancedOptions.classList.toggle('open');
+            toggleOptions.classList.toggle('active');
         };
     }
 });
