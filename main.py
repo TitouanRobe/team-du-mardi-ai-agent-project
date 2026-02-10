@@ -109,55 +109,69 @@ async def stream_search(
         print(f"📝 VOLS:\n{flights_text}\n---")
         
         # 2. ACTIVITY AGENT
-        yield f"data: {json.dumps({'type': 'tool', 'message': '🎭 Recherche activités...'})}\n\n"
-        activity_runner = Runner(agent=activity_agent, app_name=app_name, session_service=session_service)
+        activities_text = ""
         
-        # Décider quel type d'activité chercher selon le formulaire
-        if activities and "restaurant" in activities.lower():
-            activity_prompt_text = f"Appelle UNIQUEMENT l'outil search_restaurants avec city='{target}'"
-        elif activities and activities.lower() not in ["", "tous", "toutes"]:
-            activity_prompt_text = f"Appelle UNIQUEMENT l'outil search_activities avec city='{target}'"
-        else:
-            # Si vide ou "tous", chercher les deux
-            activity_prompt_text = f"Appelle les DEUX outils : search_restaurants(city='{target}') ET search_activities(city='{target}')"
-        
-        activity_prompt = Message(role="user", parts=[Part(text=activity_prompt_text)])
+        # Si le champ activités est vide, on n'appelle PAS l'agent (onglet vide)
+        if activities and activities.strip():
+            yield f"data: {json.dumps({'type': 'tool', 'message': '🎭 Recherche activités...'})}\n\n"
+            activity_runner = Runner(agent=activity_agent, app_name=app_name, session_service=session_service)
+            
+            # Décider quel type d'activité chercher selon le formulaire
+            if "restaurant" in activities.lower():
+                activity_prompt_text = f"Appelle UNIQUEMENT l'outil search_restaurants avec city='{target}'"
+            else:
+                activity_prompt_text = f"Appelle UNIQUEMENT l'outil search_activities avec city='{target}'"
+            
+            activity_prompt = Message(role="user", parts=[Part(text=activity_prompt_text)])
 
-        
-        try:
-            for event in activity_runner.run(user_id=user_id, session_id=f"{session_id}_activity", new_message=activity_prompt, run_config=run_config):
-                if hasattr(event, 'content') and event.content and hasattr(event.content, 'parts'):
-                    for part in event.content.parts:
-                        if hasattr(part, 'text') and part.text:
-                            activities_text += part.text
-        except Exception as e:
-            activities_text = f"Erreur activités: {e}"
+            
+            try:
+                for event in activity_runner.run(user_id=user_id, session_id=f"{session_id}_activity", new_message=activity_prompt, run_config=run_config):
+                    if hasattr(event, 'content') and event.content and hasattr(event.content, 'parts'):
+                        for part in event.content.parts:
+                            if hasattr(part, 'text') and part.text:
+                                activities_text += part.text
+            except Exception as e:
+                activities_text = f"Erreur activités: {e}"
+        else:
+            # Champ vide → Pas de recherche
+            yield f"data: {json.dumps({'type': 'log', 'message': '⏭️ Activités non demandées'})}\n\n"
+
             
         print(f"📝 ACTIVITÉS:\n{activities_text}\n---")
         
         # 3. HOTEL AGENT
-        yield f"data: {json.dumps({'type': 'tool', 'message': '🏨 Recherche hôtels...'})}\n\n"
-        hotel_runner = Runner(agent=hotel_agent, app_name=app_name, session_service=session_service)
+        hotels_text = ""
         
-        # Prompt explicite pour les paramètres
-        hotel_prompt_text = f"Appelle l'outil search_hotels avec ces paramètres EXACTS :\n"
-        hotel_prompt_text += f"- city: '{target}'\n"
-        if hotel_budget_max:
-            hotel_prompt_text += f"- budget: {hotel_budget_max}\n"
-        if amenities:
-            hotel_prompt_text += f"- amenities: '{amenities}'\n"
-        
-        hotel_prompt = Message(role="user", parts=[Part(text=hotel_prompt_text)])
+        # Si pas de filtre hôtel demandé, on peut aussi ne rien chercher
+        # (À vous de décider si vous voulez toujours chercher les hôtels ou non)
+        if amenities and amenities.strip():
+            yield f"data: {json.dumps({'type': 'tool', 'message': '🏨 Recherche hôtels...'})}\n\n"
+            hotel_runner = Runner(agent=hotel_agent, app_name=app_name, session_service=session_service)
+            
+            # Prompt explicite pour les paramètres
+            hotel_prompt_text = f"Appelle l'outil search_hotels avec ces paramètres EXACTS :\n"
+            hotel_prompt_text += f"- city: '{target}'\n"
+            if hotel_budget_max:
+                hotel_prompt_text += f"- budget: {hotel_budget_max}\n"
+            if amenities:
+                hotel_prompt_text += f"- amenities: '{amenities}'\n"
+            
+            hotel_prompt = Message(role="user", parts=[Part(text=hotel_prompt_text)])
 
-        
-        try:
-            for event in hotel_runner.run(user_id=user_id, session_id=f"{session_id}_hotel", new_message=hotel_prompt, run_config=run_config):
-                if hasattr(event, 'content') and event.content and hasattr(event.content, 'parts'):
-                    for part in event.content.parts:
-                        if hasattr(part, 'text') and part.text:
-                            hotels_text += part.text
-        except Exception as e:
-            hotels_text = f"Erreur hôtels: {e}"
+            
+            try:
+                for event in hotel_runner.run(user_id=user_id, session_id=f"{session_id}_hotel", new_message=hotel_prompt, run_config=run_config):
+                    if hasattr(event, 'content') and event.content and hasattr(event.content, 'parts'):
+                        for part in event.content.parts:
+                            if hasattr(part, 'text') and part.text:
+                                hotels_text += part.text
+            except Exception as e:
+                hotels_text = f"Erreur hôtels: {e}"
+        else:
+            # Pas de critère spécifique → Pas de recherche
+            yield f"data: {json.dumps({'type': 'log', 'message': '⏭️ Hôtels non demandés'})}\n\n"
+
             
         print(f"📝 HÔTELS:\n{hotels_text}\n---")
 
