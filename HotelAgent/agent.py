@@ -9,20 +9,21 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Dossier test_agent
 HOTELS_DB_PATH = os.path.join(BASE_DIR, '..', 'data', 'hotels.db')
 
 
-def search_hotels(city: str, budget: float = 1000000, amenities: str = None) -> str:
+def search_hotels(city: str, budget: float = 1000000, amenities: str = None,
+                  date_start: str = None, date_end: str = None) -> str:
     """
     Recherche les hotels dans la base de données.
     Args:
         city: La ville où chercher un hotel (ex: Paris, Tokyo).
         budget: Optionnel. Le budget maximum en euros (ex: 150.0). Par défaut 1000000 (pas de limite).
-        amenities: Les services souhaités, séparés par des virgules (ex: "WiFi, Spa").
-                   Peut être None si aucun service spécifique n'est demandé.
+        amenities: Optionnel. Les services souhaités (ex: "WiFi, Spa"). None si non précisé.
+        date_start: Optionnel. Date de début du séjour au format YYYY-MM-DD (ex: "2026-04-10"). None si non précisé.
+        date_end: Optionnel. Date de fin du séjour au format YYYY-MM-DD (ex: "2026-04-15"). None si non précisé.
 
     Returns:
         Une liste textuelle des hotels trouvés.
     """
-    print(f"\n [DEBUG] L'agent appelle l'outil avec : {city} et un budget de {budget}€ et activités : {amenities}")
-    print(f" [DEBUG] Chemin de la DB utilisé : {HOTELS_DB_PATH}")
+    print(f"\n [DEBUG] Recherche : {city}, budget={budget}€, amenities={amenities}, dates={date_start} -> {date_end}")
 
     try:
         if not os.path.exists(HOTELS_DB_PATH):
@@ -31,27 +32,23 @@ def search_hotels(city: str, budget: float = 1000000, amenities: str = None) -> 
         conn = sqlite3.connect(HOTELS_DB_PATH)
         cursor = conn.cursor()
 
-        if amenities is None:
-            query = """
-                    SELECT city, name, price, amenities, available_dates
-                    FROM hotels
-                    WHERE city LIKE ? \
-                      AND price <= ? \
-                    """
-            # Les % permettent de chercher "contient ce mot"
-            cursor.execute(query, (f"%{city}%", budget))
-        else :
+        # requête
+        query = """
+                SELECT city, name, price, amenities, available_start, available_end 
+                FROM hotels WHERE city LIKE ? AND price <= ?
+                """
+        params = [f"%{city}%", budget]
 
-            query = """
-                    SELECT city, name, price, amenities, available_dates
-                    FROM hotels
-                    WHERE city LIKE ? \
-                      AND price <= ? \
-                      AND amenities LIKE ? \
-                    """
-            # Les % permettent de chercher "contient ce mot"
-            cursor.execute(query, (f"%{city}%", budget, f"%{amenities}%"))
+        if amenities is not None:
+            query += " AND amenities LIKE ?"
+            params.append(f"%{amenities}%")
 
+        # si ajout des deux dates
+        if date_start and date_end:
+            query += " AND available_start <= ? AND available_end >= ?"
+            params.extend([date_start, date_end])
+
+        cursor.execute(query, params)
         results = cursor.fetchall()
         conn.close()
 
@@ -60,22 +57,21 @@ def search_hotels(city: str, budget: float = 1000000, amenities: str = None) -> 
         if not results:
             return f"Désolé, je n'ai trouvé aucun hotel dans la base de données pour {city}."
 
-        # 3. On formate une belle réponse texte pour l'agent
         response = f"J'ai trouvé {len(results)} hotels disponibles :\n"
         for r in results:
-            # r[0]=city, r[1]=name, r[2]=price, r[3]=amenities, r[4]=available_dates
-            response += f"- {r[1]} à {r[0]} pour {r[2]}€ (Dates : {r[4]})\n"
+            # r[0]=city, r[1]=name, r[2]=price, r[3]=amenities, r[4]=available_start, r[5]=available_end
+            response += f"- {r[1]} à {r[0]} pour {r[2]}€/nuit (Dispo: {r[4]} au {r[5]}, Services: {r[3]})\n"
 
         return response
 
     except Exception as e:
-        print(f"xErreur SQL : {e}")
+        print(f"Erreur SQL : {e}")
         return f"Erreur technique lors de la recherche : {e}"
 
 
 # Définition de l'agent
 root_agent = Agent(
-    model='gemini-2.5-flash',  # Ou gemini-1.5-flash
+    model='gemini-2.5-flash',
     name='hotel_agent',
     description='Expert en recherche en hotels.',
     instruction="""
@@ -84,7 +80,9 @@ root_agent = Agent(
     Tu as SEULEMENT besoin de la ville pour lancer une recherche.
     Si l'utilisateur précise un budget, passe-le en paramètre. Sinon, ne le précise pas.
     Si l'utilisateur précise des services (amenities), passe-les. Sinon, ne les précise pas.
-    Si l'utilisateur ne precise pas de dates (dates), passe-les. Sinon, ne les précise pas.
+    Les dates sont optionnelles, MAIS si l'utilisateur donne une date, il FAUT les deux (date_start ET date_end au format YYYY-MM-DD).
+    Si l'utilisateur ne donne qu'une seule date, redemande-lui la date manquante avant de lancer la recherche.
+    Si l'utilisateur ne donne aucune date, lance la recherche sans filtre de dates.
     Formule une réponse agréable avec les résultats sans intégrer de JSON ou de code.
     """,
     tools=[search_hotels]

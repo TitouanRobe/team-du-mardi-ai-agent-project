@@ -55,7 +55,7 @@ def create_hotels_db():
     db_path = os.path.join(DATA_DIR, 'hotels.db')
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS hotels (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,7 +63,8 @@ def create_hotels_db():
             name TEXT,
             price REAL,
             amenities TEXT,
-            available_dates TEXT
+            available_start DATE,
+            available_end DATE
         )
     ''')
     
@@ -74,22 +75,26 @@ def create_hotels_db():
         city = random.choice(CITIES)
         hotel_name = f"{city} {random.choice(types)} {random.randint(1, 100)}"
         amenities_str = ", ".join(random.sample(AMENITIES, k=random.randint(2, 4)))
+        # Dates aléatoires : début entre mars et août 2026
+        start = datetime(2026, random.randint(3, 8), random.randint(1, 28))
+        # Fin entre 5 et 30 jours après le début
+        end = start + timedelta(days=random.randint(5, 30))
         cursor.execute('''
-            INSERT INTO hotels (city, name, price, amenities, available_dates)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (city, hotel_name, random.randint(60, 500), amenities_str, "2026-03-01 to 2026-05-31"))
+            INSERT INTO hotels (city, name, price, amenities, available_start, available_end)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (city, hotel_name, random.randint(60, 500), amenities_str, start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")))
     
     conn.commit()
     conn.close()
     print(f"hotels.db créé avec 60 hôtels.")
 
 def create_activities_db():
-    print("🎟️  Génération des activités & restaurants (depuis JSON)...")
+    print("Génération des activités & restaurants (depuis JSON)...")
     
     # 1. Chargement du JSON
     data = load_json_data()
     if not data:
-        print("⚠️  Erreur : Impossible de lire data.json")
+        print("Erreur : Impossible de lire data.json")
         return
 
     db_path = os.path.join(DATA_DIR, 'activities.db')
