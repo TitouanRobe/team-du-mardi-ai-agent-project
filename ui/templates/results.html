@@ -34,19 +34,28 @@
         <h2>Votre itinéraire pour {{ destination or origin }}</h2>
 
         <div class="tabs-header">
-            <button class="tab-btn active" onclick="openTab(event, 'vols')">✈️ Vols ({{ flights|length }})</button>
-            <button class="tab-btn" onclick="openTab(event, 'hotels')">🏨 Hôtels ({{ hotels|length }})</button>
-            <button class="tab-btn" onclick="openTab(event, 'activites')">🏛️ Activités ({{ activities|length
+            <button id="tab-flights" class="tab-btn active" onclick="openTab(event, 'vols')">✈️ Vols ({{ flights|length
                 }})</button>
+            <button id="tab-hotels" class="tab-btn" onclick="openTab(event, 'hotels')">🏨 Hôtels ({{ hotels|length
+                }})</button>
+            <button id="tab-activities" class="tab-btn" onclick="openTab(event, 'activites')">🏛️ Activités ({{
+                activities|length }})</button>
         </div>
 
+        <!-- ═══════ ONGLET VOLS ═══════ -->
         <div id="vols" class="tab-content active">
             {% if flights %}
             {% for flight in flights %}
             <div class="result-card flight-card">
                 <div class="card-info">
                     <strong>{{ flight.airline }}</strong>
+                    {% if flight.origin and flight.destination %}
+                    <p>🛫 {{ flight.origin }} → {{ flight.destination }}</p>
+                    {% endif %}
                     <p>🕒 Départ : {{ flight.departure }}</p>
+                    {% if flight.arrival %}
+                    <p>🕐 Arrivée : {{ flight.arrival }}</p>
+                    {% endif %}
                 </div>
                 <div class="card-price">{{ flight.price }}€</div>
             </div>
@@ -56,15 +65,22 @@
             {% endif %}
         </div>
 
+        <!-- ═══════ ONGLET HOTELS ═══════ -->
         <div id="hotels" class="tab-content">
             {% if hotels %}
             {% for hotel in hotels %}
             <div class="result-card hotel-card">
                 <div class="card-info">
                     <strong>{{ hotel.name }}</strong>
+                    {% if hotel.city %}
                     <p>📍 {{ hotel.city }}</p>
+                    {% endif %}
+                    {% if hotel.amenities %}
                     <p>🛎️ {{ hotel.amenities }}</p>
+                    {% endif %}
+                    {% if hotel.available_start and hotel.available_end %}
                     <p>📅 Disponible du {{ hotel.available_start }} au {{ hotel.available_end }}</p>
+                    {% endif %}
                 </div>
                 <div class="card-price">{{ hotel.price }}€/nuit</div>
             </div>
@@ -74,6 +90,7 @@
             {% endif %}
         </div>
 
+        <!-- ═══════ ONGLET ACTIVITES ═══════ -->
         <div id="activites" class="tab-content">
             {% if activities %}
             {% for act in activities %}
@@ -81,7 +98,9 @@
                 <div class="card-tag">{{ act.type }}</div>
                 <div class="card-info">
                     <strong>{{ act.name }}</strong>
+                    {% if act.description %}
                     <p>{{ act.description }}</p>
+                    {% endif %}
                 </div>
                 <div class="card-price">{{ act.price }}€</div>
             </div>
@@ -160,6 +179,7 @@
             // Afficher l'indicateur de chargement
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'chat-message agent';
+            loadingDiv.id = 'chat-loading-msg';
             loadingDiv.innerHTML = `
                 <div class="chat-avatar">🤖</div>
                 <div class="chat-loading"><span></span><span></span><span></span></div>
@@ -171,33 +191,59 @@
             const eventSource = new EventSource(`/chat_refine?message=${encodeURIComponent(message)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`);
 
             let agentMessage = '';
+            let isFinished = false;
 
             eventSource.onmessage = function (event) {
-                const data = JSON.parse(event.data);
+                if (isFinished) return;
 
-                if (data.type === 'response') {
-                    agentMessage = data.message;
-                } else if (data.type === 'results') {
-                    // Mettre à jour les onglets
-                    updateResults(data.flights, data.activities, data.hotels);
-                } else if (data.type === 'complete') {
-                    // Retirer le loading et afficher la réponse
-                    loadingDiv.remove();
-                    appendMessage('agent', agentMessage || data.message);
-                    chatHistory.push({ role: 'agent', content: agentMessage || data.message });
+                try {
+                    const data = JSON.parse(event.data);
+                    console.log('Event received:', data.type, data);
 
-                    // Réactiver l'input
-                    input.disabled = false;
-                    document.getElementById('chat-send').disabled = false;
-                    input.focus();
+                    if (data.type === 'log' || data.type === 'tool') {
+                        // Optionnel : afficher les logs dans le chat
+                        console.log('Agent log:', data.message);
+                    } else if (data.type === 'response') {
+                        agentMessage = data.message;
+                    } else if (data.type === 'results') {
+                        console.log("Mise a jour des resultats...", data);
+                        updateResults(data.flights, data.activities, data.hotels);
+                    } else if (data.type === 'complete') {
+                        isFinished = true;
+                        const loader = document.getElementById('chat-loading-msg');
+                        if (loader) loader.remove();
 
-                    eventSource.close();
+                        appendMessage('agent', agentMessage || data.message || "C'est fait !");
+                        chatHistory.push({ role: 'agent', content: agentMessage || data.message });
+
+                        input.disabled = false;
+                        document.getElementById('chat-send').disabled = false;
+                        input.focus();
+
+                        eventSource.close();
+                    }
+                } catch (err) {
+                    console.error('Erreur parsing SSE:', err);
                 }
             };
 
-            eventSource.onerror = function () {
-                loadingDiv.remove();
-                appendMessage('agent', "Désolé, une erreur s'est produite. Réessayez.");
+            eventSource.onerror = function (err) {
+                if (isFinished) return;
+
+                if (eventSource.readyState === EventSource.CLOSED) {
+                    return;
+                }
+
+                console.error('EventSource error:', err);
+                const loader = document.getElementById('chat-loading-msg');
+                if (loader) loader.remove();
+
+                if (!agentMessage) {
+                    appendMessage('agent', "Oups, petit probleme de connexion. Reessayez !");
+                } else {
+                    appendMessage('agent', agentMessage);
+                }
+
                 input.disabled = false;
                 document.getElementById('chat-send').disabled = false;
                 eventSource.close();
@@ -225,54 +271,73 @@
         }
 
         function updateResults(flights, activities, hotels) {
-            // Mettre à jour l'onglet Vols
-            updateTab('vols', flights, (flight) => `
-                <div class="result-card flight-card">
-                    <div class="card-info">
-                        <strong>${flight.airline}</strong>
-                        <p>🕒 Départ : ${flight.departure}</p>
-                    </div>
-                    <div class="card-price">${flight.price}€</div>
-                </div>
-            `);
+            console.log("Donnees recues pour mise a jour:", { flights, activities, hotels });
 
-            // Mettre à jour l'onglet Hôtels
-            updateTab('hotels', hotels, (hotel) => `
-                <div class="result-card hotel-card">
-                    <div class="card-info">
-                        <strong>${hotel.name}</strong>
-                        <p>📍 ${hotel.city || ''}</p>
-                        <p>🛎️ ${hotel.amenities || ''}</p>
+            // 1. Mise à jour des Vols
+            if (flights && flights.length > 0) {
+                updateTab('vols', flights, (flight) => `
+                    <div class="result-card flight-card">
+                        <div class="card-info">
+                            <strong>${flight.airline || 'Vol'}</strong>
+                            ${flight.origin && flight.destination ? `<p>🛫 ${flight.origin} → ${flight.destination}</p>` : ''}
+                            <p>🕒 Départ : ${flight.departure || 'N/A'}</p>
+                            ${flight.arrival ? `<p>🕐 Arrivée : ${flight.arrival}</p>` : ''}
+                        </div>
+                        <div class="card-price">${flight.price}€</div>
                     </div>
-                    <div class="card-price">${hotel.price}€/nuit</div>
-                </div>
-            `);
+                `);
+                const tabFlights = document.getElementById('tab-flights');
+                if (tabFlights) tabFlights.innerText = `✈️ Vols (${flights.length})`;
+            }
 
-            // Mettre à jour l'onglet Activités
-            updateTab('activites', activities, (act) => `
-                <div class="result-card activity-card">
-                    <div class="card-tag">${act.type}</div>
-                    <div class="card-info">
-                        <strong>${act.name}</strong>
-                        <p>${act.description}</p>
+            // 2. Mise à jour des Hôtels
+            if (hotels && hotels.length > 0) {
+                updateTab('hotels', hotels, (hotel) => `
+                    <div class="result-card hotel-card">
+                        <div class="card-info">
+                            <strong>${hotel.name}</strong>
+                            ${hotel.city ? `<p>📍 ${hotel.city}</p>` : ''}
+                            ${hotel.amenities ? `<p>🛎️ ${hotel.amenities}</p>` : ''}
+                            ${hotel.available_start && hotel.available_end ? `<p>📅 Disponible du ${hotel.available_start} au ${hotel.available_end}</p>` : ''}
+                        </div>
+                        <div class="card-price">${hotel.price}€/nuit</div>
                     </div>
-                    <div class="card-price">${act.price}€</div>
-                </div>
-            `);
+                `);
+                const tabHotels = document.getElementById('tab-hotels');
+                if (tabHotels) tabHotels.innerText = `🏨 Hôtels (${hotels.length})`;
+            }
 
-            // Mettre à jour les compteurs dans les onglets
-            document.querySelector('.tab-btn:nth-child(1)').textContent = `✈️ Vols (${flights.length})`;
-            document.querySelector('.tab-btn:nth-child(2)').textContent = `🏨 Hôtels (${hotels.length})`;
-            document.querySelector('.tab-btn:nth-child(3)').textContent = `🏛️ Activités (${activities.length})`;
+            // 3. Mise à jour des Activités
+            if (activities && activities.length > 0) {
+                updateTab('activites', activities, (act) => `
+                    <div class="result-card activity-card">
+                        <div class="card-tag">${act.type || 'Activité'}</div>
+                        <div class="card-info">
+                            <strong>${act.name}</strong>
+                            ${act.description ? `<p>${act.description}</p>` : ''}
+                        </div>
+                        <div class="card-price">${act.price}€</div>
+                    </div>
+                `);
+                const tabActivities = document.getElementById('tab-activities');
+                if (tabActivities) tabActivities.innerText = `🏛️ Activités (${activities.length})`;
+            }
         }
 
         function updateTab(tabId, items, renderFunc) {
             const tab = document.getElementById(tabId);
-            if (items.length === 0) {
+            if (!tab) {
+                console.error(`Tab ${tabId} introuvable !`);
+                return;
+            }
+
+            if (!items || items.length === 0) {
                 tab.innerHTML = '<p class="empty-msg">Aucun résultat trouvé.</p>';
             } else {
                 tab.innerHTML = items.map(renderFunc).join('');
             }
+
+            console.log(`Onglet ${tabId} mis a jour avec ${items ? items.length : 0} elements`);
         }
 
         // Permettre l'envoi avec Entrée

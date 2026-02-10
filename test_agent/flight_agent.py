@@ -5,10 +5,21 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FLIGHTS_DB_PATH = os.path.join(BASE_DIR, '..', 'data', 'flights.db')
 
-def search_flights(origin: str, destination: str = None, preferred_date: str = None, 
+
+def search_flights(origin: str, destination: str = None, preferred_date: str = None,
                    max_price: float = None, preferred_airline: str = None) -> str:
+    """
+    Recherche des vols dans la base de données.
+    Args:
+        origin: Ville de départ (ex: Paris, Berlin).
+        destination: Ville d'arrivée (ex: Tokyo, Madrid). Optionnel.
+        preferred_date: Date souhaitée au format YYYY-MM-DD. Optionnel.
+        max_price: Budget maximum en euros. Optionnel.
+        preferred_airline: Compagnie aérienne préférée. Optionnel.
+    Returns:
+        Liste textuelle des vols trouvés.
+    """
     # --- NETTOYAGE DES PARAMÈTRES ---
-    # Si l'IA envoie des mots génériques, on les annule pour le SQL
     if destination and destination.lower() in ["partout", "n'importe où", "anywhere", "none"]:
         destination = None
     if preferred_airline and preferred_airline.lower() in ["n'importe laquelle", "none"]:
@@ -19,24 +30,23 @@ def search_flights(origin: str, destination: str = None, preferred_date: str = N
     try:
         conn = sqlite3.connect(FLIGHTS_DB_PATH)
         cursor = conn.cursor()
-        
+
         query = "SELECT airline, flight_number, origin, destination, departure_time, arrival_time, price FROM flights WHERE origin LIKE ?"
         params = [f"%{origin}%"]
 
         if destination:
             query += " AND destination LIKE ?"
             params.append(f"%{destination}%")
-        
+
         if preferred_date:
             query += " AND departure_time LIKE ?"
             params.append(f"{preferred_date}%")
-            
+
         if max_price:
             query += " AND price <= ?"
             params.append(max_price)
-            
+
         if preferred_airline:
-            # On cherche juste le mot clé (ex: 'Air' pour 'Air France')
             query += " AND airline LIKE ?"
             params.append(f"%{preferred_airline}%")
 
@@ -47,7 +57,7 @@ def search_flights(origin: str, destination: str = None, preferred_date: str = N
 
         if not results:
             return "Désolé, aucun vol ne correspond. Modifiez vos filtres (budget, date ou destination)."
-        
+
         resp = f"Voici les vols trouvés au départ de {origin} :\n"
         for r in results:
             resp += f"- {r[0]} ({r[1]}) : {r[2]} -> {r[3]} | départ {r[4]} arrivée {r[5]} pour {r[6]}€\n"
@@ -55,27 +65,29 @@ def search_flights(origin: str, destination: str = None, preferred_date: str = N
     except Exception as e:
         return f"Erreur technique : {e}"
 
+
 flight_agent = Agent(
     name="FlightAgent",
-    model="gemini-2.5-flash", 
+    model="gemini-2.0-flash",
+    description="Expert en recherche de vols. Utilise l'outil search_flights pour trouver des vols selon origin, destination, date, budget et compagnie.",
     instruction="""
-    Tu es un ROBOT de recherche de vols. Tu NE parles PAS. Tu affiches UNIQUEMENT des LISTES.
+    Tu es un agent de recherche de vols.
     
-    RÈGLE :
-    1. Dès que l'utilisateur te donne des paramètres, appelle l'outil search_flights avec ces paramètres.
-    2. Affiche EXACTEMENT le résultat de l'outil, sans rien ajouter.
+    COMPORTEMENT OBLIGATOIRE :
+    Dès que tu reçois une demande mentionnant un voyage, un trajet, ou des villes, tu DOIS immédiatement appeler search_flights.
     
-    INTERDICTIONS ABSOLUES :
-    - N'enveloppe JAMAIS le résultat dans du JSON
-    - INTERDICTION de dire "Voici", "J'ai trouvé", ou toute phrase.
-    - INTERDICTION de reformuler les résultats.
-    - INTERDICTION de poser des questions.
+    - Extrais "origin" et "destination" du message (les villes mentionnées).
+    - Si un budget est mentionné, utilise max_price.
+    - Si une date est mentionnée, utilise preferred_date.
+    - Si une compagnie est mentionnée, utilise preferred_airline.
+    - Si un paramètre n'est pas mentionné, NE le passe PAS à l'outil.
     
-    FORMAT OBLIGATOIRE :
-    Affiche le texte retourné par l'outil EXACTEMENT tel quel, ligne par ligne.
+    Après avoir reçu le résultat de search_flights, retourne le résultat EXACTEMENT tel quel, sans modification.
     
-    SI l'outil retourne une liste, affiche-la SANS MODIFICATION.
-    SI l'outil ne trouve rien, affiche exactement le message d'erreur.
+    INTERDICTIONS :
+    - Ne pose JAMAIS de questions.
+    - Ne reformule PAS les résultats.
+    - N'ajoute PAS de commentaires ou phrases d'introduction.
     """,
     tools=[search_flights]
 )

@@ -1,11 +1,8 @@
 from google.adk.agents.llm_agent import Agent
-from google.adk.runners import Runner
 import sqlite3
 import os
 
-# 1. Calcul dynamique du chemin pour trouver la DB peu importe d'où on lance le script
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Dossier test_agent
-# On remonte d'un cran (..) pour aller dans data
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 HOTELS_DB_PATH = os.path.join(BASE_DIR, '..', 'data', 'hotels.db')
 
 
@@ -14,16 +11,15 @@ def search_hotels(city: str, budget: float = 1000000, amenities: str = None,
     """
     Recherche les hotels dans la base de données.
     Args:
-        city: La ville où chercher un hotel (ex: Paris, Tokyo).
+        city: La ville où chercher un hotel (ex: Paris, Tokyo, Madrid).
         budget: Optionnel. Le budget maximum en euros (ex: 150.0). Par défaut 1000000 (pas de limite).
         amenities: Optionnel. Les services souhaités (ex: "WiFi, Spa"). None si non précisé.
-        date_start: Optionnel. Date de début du séjour au format YYYY-MM-DD (ex: "2026-04-10"). None si non précisé.
-        date_end: Optionnel. Date de fin du séjour au format YYYY-MM-DD (ex: "2026-04-15"). None si non précisé.
-
+        date_start: Optionnel. Date de début du séjour au format YYYY-MM-DD. None si non précisé.
+        date_end: Optionnel. Date de fin du séjour au format YYYY-MM-DD. None si non précisé.
     Returns:
         Une liste textuelle des hotels trouvés.
     """
-    print(f"\n [DEBUG] Recherche : {city}, budget={budget}€, amenities={amenities}, dates={date_start} -> {date_end}")
+    print(f"\n🏨 [DEBUG] Recherche : {city}, budget={budget}€, amenities={amenities}, dates={date_start} -> {date_end}")
 
     try:
         if not os.path.exists(HOTELS_DB_PATH):
@@ -32,7 +28,6 @@ def search_hotels(city: str, budget: float = 1000000, amenities: str = None,
         conn = sqlite3.connect(HOTELS_DB_PATH)
         cursor = conn.cursor()
 
-        # requête
         query = """
                 SELECT city, name, price, amenities, available_start, available_end 
                 FROM hotels WHERE city LIKE ? AND price <= ?
@@ -43,7 +38,6 @@ def search_hotels(city: str, budget: float = 1000000, amenities: str = None,
             query += " AND amenities LIKE ?"
             params.append(f"%{amenities}%")
 
-        # si ajout des deux dates
         if date_start and date_end:
             query += " AND available_start <= ? AND available_end >= ?"
             params.extend([date_start, date_end])
@@ -59,7 +53,6 @@ def search_hotels(city: str, budget: float = 1000000, amenities: str = None,
 
         response = ""
         for r in results:
-            # r[0]=city, r[1]=name, r[2]=price, r[3]=amenities, r[4]=available_start, r[5]=available_end
             response += f"- {r[1]} à {r[0]} pour {r[2]}€/nuit (Dispo: {r[4]} au {r[5]}, Services: {r[3]})\n"
 
         return response
@@ -69,26 +62,28 @@ def search_hotels(city: str, budget: float = 1000000, amenities: str = None,
         return f"Erreur technique lors de la recherche : {e}"
 
 
-# Définition de l'agent
 hotel_agent = Agent(
-    model='gemini-2.5-flash',
+    model='gemini-2.0-flash',
     name='hotel_agent',
-    description='Expert en recherche en hotels.',
+    description="Expert en recherche d'hôtels. Utilise l'outil search_hotels pour trouver des hôtels selon la ville, le budget et les services.",
     instruction="""
-    Tu es un ROBOT de recherche d'hôtels. Tu NE parles PAS. Tu affiches UNIQUEMENT des LISTES.
+    Tu es un agent de recherche d'hôtels.
     
-    QUAND on te demande des hôtels, utilise l'outil search_hotels.
+    COMPORTEMENT OBLIGATOIRE :
+    Dès que tu reçois une demande mentionnant un voyage, une ville, ou un hébergement, tu DOIS immédiatement appeler search_hotels.
     
-    INTERDICTIONS ABSOLUES :
-    - INTERDICTION de dire "Voici", "J'ai trouvé", "disponibles", ou toute phrase.
-    - INTERDICTION de reformuler les résultats.
-    - INTERDICTION d'ajouter des commentaires.
+    - Extrais la ville de destination du message.
+    - Si un budget hôtel est mentionné, utilise le paramètre budget.
+    - Si des services sont mentionnés (Spa, WiFi, Piscine), utilise le paramètre amenities.
+    - Si des dates sont mentionnées, utilise date_start et date_end.
+    - Si un paramètre n'est pas mentionné, NE le passe PAS à l'outil.
     
-    FORMAT OBLIGATOIRE (copie EXACTEMENT ce que l'outil retourne) :
-    Chaque ligne doit commencer par "- " suivi du format exact de l'outil.
+    Après avoir reçu le résultat de search_hotels, retourne le résultat EXACTEMENT tel quel, sans modification.
     
-    SI l'outil retourne une liste, affiche-la ligne par ligne SANS MODIFICATION.
-    SI l'outil dit "Aucun hôtel", affiche exactement ce message.
+    INTERDICTIONS :
+    - Ne pose JAMAIS de questions.
+    - Ne reformule PAS les résultats.
+    - N'ajoute PAS de commentaires ou phrases d'introduction.
     """,
     tools=[search_hotels]
 )
