@@ -150,10 +150,28 @@ def create_activities_db():
     conn.commit()
     conn.close()
     print(f"activities.db créé avec {count} entrées (Activités + Restaurants).")
+
+def create_memory_db():
+    db_path = os.path.join(DATA_DIR, 'memory.db')
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
     
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS memory (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            preferences TEXT
+        )
+    ''')
+    
+    cursor.execute("DELETE FROM memory")
+    conn.commit()
+    conn.close()
+    print(f"memory.db crées.")
+
 if __name__ == "__main__":
     create_flights_db()
     create_hotels_db()
     print("on crée activité")
     create_activities_db()
+    create_memory_db()
     print("carré")
