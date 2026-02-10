@@ -108,22 +108,26 @@ async def stream_search(
             
         print(f"📝 VOLS:\n{flights_text}\n---")
         
-        # 2. ACTIVITY AGENT
+# 2. ACTIVITY AGENT (Gestion unifiée Restaurant + Activité)
         activities_text = ""
         
-        # Si le champ activités est vide, on n'appelle PAS l'agent (onglet vide)
+        # On vérifie juste si le champ n'est pas vide
         if activities and activities.strip():
-            yield f"data: {json.dumps({'type': 'tool', 'message': '🎭 Recherche activités...'})}\n\n"
+            yield f"data: {json.dumps({'type': 'tool', 'message': '🎭 Analyse de vos envies...'})}\n\n"
             activity_runner = Runner(agent=activity_agent, app_name=app_name, session_service=session_service)
             
-            # Décider quel type d'activité chercher selon le formulaire
-            if "restaurant" in activities.lower():
-                activity_prompt_text = f"Appelle UNIQUEMENT l'outil search_restaurants avec city='{target}'"
-            else:
-                activity_prompt_text = f"Appelle UNIQUEMENT l'outil search_activities avec city='{target}'"
+            # --- LE PROMPT "AUTO-PILOTE" ---
+            # On ne force pas l'outil. On donne le contexte et on laisse l'IA choisir.
+            activity_prompt_text = (
+                f"CONTEXTE : L'utilisateur est à {target}. "
+                f"SA DEMANDE (Champ unique Activité/Resto) : '{activities}'. "
+                f"TA MISSION :"
+                f"1. ANALYSE la demande : Est-ce que ça parle de nourriture ('Street food', 'Vegan', 'Gastro') ou de loisirs ('Musée', 'Parc') ?"
+                f"2. CHOISIS l'outil adapté : `search_restaurants` ou `search_activities`."
+                f"3. EXECUTE et FILTRE : Appelle l'outil et ne garde que les résultats qui correspondent sémantiquement à '{activities}'."
+            )
             
             activity_prompt = Message(role="user", parts=[Part(text=activity_prompt_text)])
-
             
             try:
                 for event in activity_runner.run(user_id=user_id, session_id=f"{session_id}_activity", new_message=activity_prompt, run_config=run_config):
@@ -134,12 +138,9 @@ async def stream_search(
             except Exception as e:
                 activities_text = f"Erreur activités: {e}"
         else:
-            # Champ vide → Pas de recherche
-            yield f"data: {json.dumps({'type': 'log', 'message': '⏭️ Activités non demandées'})}\n\n"
+            yield f"data: {json.dumps({'type': 'log', 'message': '⏭️ Pas d\'activités demandées'})}\n\n"
 
-            
-        print(f"📝 ACTIVITÉS:\n{activities_text}\n---")
-        
+        print(f"📝 ACTIVITÉS/RESTOS:\n{activities_text}\n---")
         # 3. HOTEL AGENT
         hotels_text = ""
         
@@ -263,22 +264,32 @@ async def chat_refine(request: Request, message: str, origin: str, destination: 
         except: pass
         
         response_message = "Voici les résultats affinés"
+
         
-        # ACTIVITIES
-        if call_activities:
-            yield f"data: {json.dumps({'type': 'log', 'message': '🍴 Recherche...'})}\\n\\n"
+        # On détecte si ça concerne l'agent d'activité/resto (Mots-clés larges)
+        # On inclut tout ce qui peut toucher à la sortie
+        triggers = ['manger', 'faim', 'restaurant', 'visiter', 'voir', 'faire', 'activité', 'musée', 'parc', 'food', 'vegan', 'sport', 'balade', 'street', 'gamme', 'luxe', 'cool']
+        is_activity_or_food = any(t in message_lower for t in triggers) or call_activities
+
+        # 1. ACTIVITIES / RESTAURANTS
+        if is_activity_or_food:
+            yield f"data: {json.dumps({'type': 'log', 'message': '✨ Recherche sur mesure...'})}\n\n"
             activity_runner = Runner(agent=activity_agent, app_name=app_name, session_service=session_service)
             
-            if "vegan" in message_lower or "végé" in message_lower:
-                activity_prompt_text = f"Appelle UNIQUEMENT search_restaurants avec city='{target}'"
-                response_message = "Restaurants vegan/végétariens uniquement"
-            elif "restaurant" in message_lower:
-                activity_prompt_text = f"Appelle UNIQUEMENT search_restaurants avec city='{target}'"
-            else:
-                activity_prompt_text = f"Appelle UNIQUEMENT search_activities avec city='{target}'"
+            # --- LE PROMPT "AUTO-PILOTE" POUR LE CHAT ---
+            activity_prompt_text = (
+                f"L'utilisateur veut affiner sa recherche à {target}. "
+                f"SON MESSAGE : '{message}'. "
+                f"CONSIGNE : "
+                f"- Si ça parle de nourriture (ex: 'Street food', 'Japonais'), utilise `search_restaurants`. "
+                f"- Si ça parle de lieux (ex: 'Calme', 'Nature', 'Culture'), utilise `search_activities`. "
+                f"- Si c'est vague (ex: 'Haut de gamme'), utilise ton jugement pour proposer le plus pertinent ou cherche dans les deux si nécessaire. "
+                f"IMPORTANT : Filtre les résultats pour qu'ils collent parfaitement à la demande '{message}'."
+            )
             
             activity_prompt = Message(role="user", parts=[Part(text=activity_prompt_text)])
             activities_text = ""
+            
             try:
                 for event in activity_runner.run(user_id=user_id, session_id=f"{session_id_base}_activity", new_message=activity_prompt, run_config=run_config):
                     if hasattr(event, 'content') and event.content and hasattr(event.content, 'parts'):
@@ -288,17 +299,20 @@ async def chat_refine(request: Request, message: str, origin: str, destination: 
             except Exception as e:
                 print(f"Erreur activity: {e}")
             
-            # Parser avec regex corrigé (SIMPLE BACKSLASH)
-            act_pattern = r"(Restaurant|Activité), ([^,]+), ([\d.]+)€, (.+)"
+            print(f"DEBUG ACTIVITY RAW: {activities_text}")
+
+            # Le Parsing reste le même (il accepte Restaurant OU Activité)
+            act_pattern = r"(Restaurant|Activité)[,:-]\s*([^,:-]+)[,:-]\s*([\d.]+)\s?€?[,:-]\s*(.+)"
+            
             for m in re.finditer(act_pattern, activities_text):
-                desc = m.group(4).strip()
-                if "vegan" in message_lower or "végé" in message_lower:
-                    if "vegan" in desc.lower() or "végé" in desc.lower():
-                        activities_data.append({"type": m.group(1).strip(), "name": m.group(2).strip(), "price": float(m.group(3)), "description": desc})
-                else:
-                    activities_data.append({"type": m.group(1).strip(), "name": m.group(2).strip(), "price": float(m.group(3)), "description": desc})
-        
+                activities_data.append({
+                    "type": m.group(1).strip(), 
+                    "name": m.group(2).strip(), 
+                    "price": float(m.group(3).strip()), 
+                    "description": m.group(4).strip()
+                })
         # HOTELS
+        
         if call_hotels:
             yield f"data: {json.dumps({'type': 'log', 'message': '🏨 Recherche hôtels...'})}\\n\\n"
             hotel_runner = Runner(agent=hotel_agent, app_name=app_name, session_service=session_service)
