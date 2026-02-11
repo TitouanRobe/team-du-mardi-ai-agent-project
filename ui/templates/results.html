@@ -207,7 +207,16 @@
                         agentMessage = data.message;
                     } else if (data.type === 'results') {
                         console.log("Mise a jour des resultats...", data);
-                        updateResults(data.flights, data.activities, data.hotels);
+                        // Ne mettre à jour que les catégories présentes dans le payload
+                        if (data.flights !== undefined) {
+                            updateFlights(data.flights);
+                        }
+                        if (data.activities !== undefined) {
+                            updateActivities(data.activities);
+                        }
+                        if (data.hotels !== undefined) {
+                            updateHotels(data.hotels);
+                        }
                     } else if (data.type === 'complete') {
                         isFinished = true;
                         const loader = document.getElementById('chat-loading-msg');
@@ -270,58 +279,69 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        function updateResults(flights, activities, hotels) {
-            console.log("Donnees recues pour mise a jour:", { flights, activities, hotels });
-
-            // 1. Mise à jour des Vols
-            if (flights && flights.length > 0) {
-                updateTab('vols', flights, (flight) => `
-                    <div class="result-card flight-card">
-                        <div class="card-info">
-                            <strong>${flight.airline || 'Vol'}</strong>
-                            ${flight.origin && flight.destination ? `<p>🛫 ${flight.origin} → ${flight.destination}</p>` : ''}
-                            <p>🕒 Départ : ${flight.departure || 'N/A'}</p>
-                            ${flight.arrival ? `<p>🕐 Arrivée : ${flight.arrival}</p>` : ''}
-                        </div>
-                        <div class="card-price">${flight.price}€</div>
-                    </div>
-                `);
-                const tabFlights = document.getElementById('tab-flights');
-                if (tabFlights) tabFlights.innerText = `✈️ Vols (${flights.length})`;
+        function updateFlights(flights) {
+            if (!flights || flights.length === 0) {
+                console.log("Aucun vol à mettre à jour");
+                return;
             }
 
-            // 2. Mise à jour des Hôtels
-            if (hotels && hotels.length > 0) {
-                updateTab('hotels', hotels, (hotel) => `
-                    <div class="result-card hotel-card">
-                        <div class="card-info">
-                            <strong>${hotel.name}</strong>
-                            ${hotel.city ? `<p>📍 ${hotel.city}</p>` : ''}
-                            ${hotel.amenities ? `<p>🛎️ ${hotel.amenities}</p>` : ''}
-                            ${hotel.available_start && hotel.available_end ? `<p>📅 Disponible du ${hotel.available_start} au ${hotel.available_end}</p>` : ''}
-                        </div>
-                        <div class="card-price">${hotel.price}€/nuit</div>
+            console.log("Mise à jour des vols:", flights.length);
+            updateTab('vols', flights, (flight) => `
+                <div class="result-card flight-card">
+                    <div class="card-info">
+                        <strong>${flight.airline || 'Vol'}</strong>
+                        ${flight.origin && flight.destination ? `<p>🛫 ${flight.origin} → ${flight.destination}</p>` : ''}
+                        <p>🕒 Départ : ${flight.departure || 'N/A'}</p>
+                        ${flight.arrival ? `<p>🕐 Arrivée : ${flight.arrival}</p>` : ''}
                     </div>
-                `);
-                const tabHotels = document.getElementById('tab-hotels');
-                if (tabHotels) tabHotels.innerText = `🏨 Hôtels (${hotels.length})`;
+                    <div class="card-price">${flight.price}€</div>
+                </div>
+            `);
+            const tabFlights = document.getElementById('tab-flights');
+            if (tabFlights) tabFlights.innerText = `✈️ Vols (${flights.length})`;
+        }
+
+        function updateHotels(hotels) {
+            if (!hotels || hotels.length === 0) {
+                console.log("Aucun hôtel à mettre à jour");
+                return;
             }
 
-            // 3. Mise à jour des Activités
-            if (activities && activities.length > 0) {
-                updateTab('activites', activities, (act) => `
-                    <div class="result-card activity-card">
-                        <div class="card-tag">${act.type || 'Activité'}</div>
-                        <div class="card-info">
-                            <strong>${act.name}</strong>
-                            ${act.description ? `<p>${act.description}</p>` : ''}
-                        </div>
-                        <div class="card-price">${act.price}€</div>
+            console.log("Mise à jour des hôtels:", hotels.length);
+            updateTab('hotels', hotels, (hotel) => `
+                <div class="result-card hotel-card">
+                    <div class="card-info">
+                        <strong>${hotel.name}</strong>
+                        ${hotel.city ? `<p>📍 ${hotel.city}</p>` : ''}
+                        ${hotel.amenities ? `<p>🛎️ ${hotel.amenities}</p>` : ''}
+                        ${hotel.available_start && hotel.available_end ? `<p>📅 Disponible du ${hotel.available_start} au ${hotel.available_end}</p>` : ''}
                     </div>
-                `);
-                const tabActivities = document.getElementById('tab-activities');
-                if (tabActivities) tabActivities.innerText = `🏛️ Activités (${activities.length})`;
+                    <div class="card-price">${hotel.price}€/nuit</div>
+                </div>
+            `);
+            const tabHotels = document.getElementById('tab-hotels');
+            if (tabHotels) tabHotels.innerText = `🏨 Hôtels (${hotels.length})`;
+        }
+
+        function updateActivities(activities) {
+            if (!activities || activities.length === 0) {
+                console.log("Aucune activité à mettre à jour");
+                return;
             }
+
+            console.log("Mise à jour des activités:", activities.length);
+            updateTab('activites', activities, (act) => `
+                <div class="result-card activity-card">
+                    <div class="card-tag">${act.type || 'Activité'}</div>
+                    <div class="card-info">
+                        <strong>${act.name}</strong>
+                        ${act.description ? `<p>${act.description}</p>` : ''}
+                    </div>
+                    <div class="card-price">${act.price}€</div>
+                </div>
+            `);
+            const tabActivities = document.getElementById('tab-activities');
+            if (tabActivities) tabActivities.innerText = `🏛️ Activités (${activities.length})`;
         }
 
         function updateTab(tabId, items, renderFunc) {

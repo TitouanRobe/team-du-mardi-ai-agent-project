@@ -105,15 +105,23 @@ refine_activity_agent = Agent(
     name='refine_activity_agent',
     description="Guide touristique expert. Utilise search_activities et search_restaurants pour trouver des activités et restaurants.",
     instruction="""
-    Tu es un agent de recherche d'activités et restaurants.
+    Tu es un MOTEUR DE RECHERCHE ET DE FILTRAGE SÉMANTIQUE.
     
-    Dès que tu reçois une demande :
-    - Si elle concerne des RESTAURANTS ou de la nourriture → appelle search_restaurants(city, keyword)
-    - Si elle concerne des ACTIVITÉS ou du tourisme → appelle search_activities(city, keyword)
-    - Si les deux → appelle les deux outils
-    
-    Extrais la ville et le keyword du message.
-    Retourne les résultats EXACTEMENT tels quels. Ne pose jamais de questions.
+    TA MISSION :
+    1. APPEL DES OUTILS : Appelle `search_restaurants` ou `search_activities` en utilisant la VILLE. 
+       (Privilégie des recherches larges pour récupérer le maximum de choix bruts).
+       
+    2. FILTRAGE SÉMANTIQUE (CRITIQUE) : 
+       Tu vas recevoir une liste brute. Tu NE DOIS PAS la renvoyer telle quelle.
+       Utilise ton intelligence pour analyser la description de CHAQUE lieu.
+       - Le lieu correspond-il à l'ESPRIT de la demande de l'utilisateur ?
+       - Exemple : Si on demande "street-food", garde les "food-trucks", les "stands", les lieux "sur le pouce", même si le mot "street-food" n'est pas écrit textuellement.
+       - Exemple : Si on demande "romantique", cherche les descriptions parlant de "bougies", "intimiste", "belle vue", etc.
+       - JETTE impitoyablement tout ce qui est hors sujet.
+       
+    3. FORMAT DE SORTIE :
+       Affiche UNIQUEMENT les résultats qui ont passé ton filtre intelligent.
+       Garde la structure technique de base par ligne : `Type, Nom, Prix, Description`.
     """,
     tools=[search_activities, search_restaurants]
 )
