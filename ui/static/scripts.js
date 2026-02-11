@@ -12,19 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingOverlay = document.getElementById('loading-overlay');
     const resultContainer = document.getElementById('resultContainer');
 
-    // Dans ton écouteur d'événement 'submit' ou ta fonction de recherche :
-    const origin = document.getElementById('origin').value;
-    const dest = document.getElementById('destination').value;
-    const pref = document.getElementById('preferences').value;
-    const dateDept = document.getElementById('departure_date').value;
-    const budget = document.getElementById('budget_max').value;
-    const airline = document.getElementById('airline').value;
-
-    // On construit l'URL avec tous les paramètres
-    const url = `/stream_search?origin=${origin}&destination=${dest}&preferences=${pref}&budget_max=${budget}&airline=${airline}&date=${dateDept}`;
-
-    const eventSource = new EventSource(url);
-
     // --- 2. GESTION DE LA MODALE (OUVERTURE / FERMETURE) ---
 
     // Ouvrir la modale
@@ -102,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         progressCount++;
                         const progressFill = document.getElementById('progressFill');
                         if (progressFill) {
-                            const pct = Math.min(progressCount * 25, 100);
+                            const pct = Math.min(progressCount * 20, 100);
                             progressFill.style.width = pct + '%';
                         }
                     }

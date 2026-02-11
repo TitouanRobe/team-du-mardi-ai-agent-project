@@ -38,6 +38,8 @@ def search_hotels(city: str, budget: float = 1000000, amenities: str = None,
             for amenity in amenities.split(","):
                 amenity = amenity.strip()
                 if amenity:
+                    if amenity == "Gym" or amenity == "gym":
+                        amenity = "salle de sport"
                     query += " AND amenities LIKE ?"
                     params.append(f"%{amenity}%")
 
