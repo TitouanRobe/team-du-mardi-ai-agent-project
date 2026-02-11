@@ -600,16 +600,28 @@ async def chat_refine(request: Request, message: str, origin: str, destination: 
             activities_text = (activities_text + "\n" + restaurants_text).strip()
         hotels_text = _extract_section(full_response, "### DEBUT_HOTELS ###", "### FIN_HOTELS ###")
 
-        # Pas de markers trouvés → parser la réponse brute pour CHAQUE type indépendamment
-        # (contrairement à stream_search, on ne met PAS tout dans tout)
-        if not flights_text and not activities_text and not hotels_text:
-            flights_data = _parse_flights(full_response)
-            activities_data = _parse_activities(full_response)
-            hotels_data = _parse_hotels(full_response)
-        else:
+        # Parsing : UNIQUEMENT les sections avec markers
+        # Si aucun marker n'est trouvé, on essaie de deviner intelligemment quel parser utiliser
+        # en analysant le contenu de la réponse
+        if flights_text or activities_text or hotels_text:
+            # Cas normal : on a des markers, on parse uniquement les sections présentes
             flights_data = _parse_flights(flights_text) if flights_text else []
             activities_data = _parse_activities(activities_text) if activities_text else []
             hotels_data = _parse_hotels(hotels_text) if hotels_text else []
+        else:
+            # Aucun marker trouvé : l'agent a renvoyé du texte brut
+            # On devine quel type de données c'est en regardant le contenu
+            lower_response = full_response.lower()
+            
+            # Compter les indicateurs de chaque type
+            has_flight_indicators = any(word in lower_response for word in ["vol", "départ", "arrivée", "flight", "airline", "->", "→"])
+            has_hotel_indicators = any(word in lower_response for word in ["hôtel", "hotel", "€/nuit", "dispo:", "services:"])
+            has_activity_indicators = any(word in lower_response for word in ["activité", "restaurant", "musée", "visite", "cuisine"])
+            
+            # Parser uniquement ce qui semble être présent
+            flights_data = _parse_flights(full_response) if has_flight_indicators else []
+            activities_data = _parse_activities(full_response) if has_activity_indicators else []
+            hotels_data = _parse_hotels(full_response) if has_hotel_indicators else []
 
         # Message dynamique selon ce qui a été trouvé
         parts = []
