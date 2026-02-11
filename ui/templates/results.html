@@ -60,7 +60,7 @@
                 </div>
                 <div class="card-price">{{ flight.price }}€</div>
                 <button class="add-to-cart-btn"
-                    onclick="addToCart('flight', {{ loop.index0 }}, '{{ flight.airline }}', {{ flight.price }}, '{{ flight.origin }} → {{ flight.destination }}<br>Départ: {{ flight.departure }}')">🛒
+                    onclick="addToCart('flight', {{ loop.index0 }}, '{{ flight.airline }}', {{ flight.price }}, '{{ flight.origin }} → {{ flight.destination }}<br>Départ: {{ flight.departure }}')">
                     Ajouter au panier</button>
             </div>
             {% endfor %}
@@ -88,7 +88,7 @@
                 </div>
                 <div class="card-price">{{ hotel.price }}€/nuit</div>
                 <button class="add-to-cart-btn"
-                    onclick="addToCart('hotel', {{ loop.index0 }}, '{{ hotel.name }}', {{ hotel.price }}, '{{ hotel.city }}<br>{{ hotel.available_start }} au {{ hotel.available_end }}')">🛒
+                    onclick="addToCart('hotel', {{ loop.index0 }}, '{{ hotel.name }}', {{ hotel.price }}, '{{ hotel.city }}<br>{{ hotel.available_start }} au {{ hotel.available_end }}')">
                     Ajouter au panier</button>
             </div>
             {% endfor %}
@@ -111,7 +111,7 @@
                 </div>
                 <div class="card-price">{{ act.price }}€</div>
                 <button class="add-to-cart-btn"
-                    onclick="addToCart('activity', {{ loop.index0 }}, '{{ act.name }}', {{ act.price }}, '{{ act.type }}')">🛒
+                    onclick="addToCart('activity', {{ loop.index0 }}, '{{ act.name }}', {{ act.price }}, '{{ act.type }}')">
                     Ajouter au panier</button>
             </div>
             {% endfor %}
@@ -218,7 +218,7 @@
             btn.textContent = '✓ Ajouté';
             setTimeout(() => {
                 btn.classList.remove('added');
-                btn.textContent = '🛒 Ajouter au panier';
+                btn.textContent = 'Ajouter au panier';
             }, 2000);
         }
 
@@ -467,7 +467,7 @@
                     </div>
                     <div>
                         <div class="card-price">${flight.price}€</div>
-                        <button class="add-to-cart-btn" onclick="addToCart('flight', ${index}, '${flight.airline || 'Vol'}', ${flight.price}, '${flight.origin} -> ${flight.destination}')">🛒 Ajouter au panier</button>
+                        <button class="add-to-cart-btn" onclick="addToCart('flight', ${index}, '${flight.airline || 'Vol'}', ${flight.price}, '${flight.origin} -> ${flight.destination}')">Ajouter au panier</button>
                     </div>
                 </div>
             `);
@@ -492,7 +492,7 @@
                     </div>
                     <div>
                         <div class="card-price">${hotel.price}€/nuit</div>
-                        <button class="add-to-cart-btn" onclick="addToCart('hotel', ${index}, '${hotel.name}', ${hotel.price}, '${hotel.city}')">🛒 Ajouter au panier</button>
+                        <button class="add-to-cart-btn" onclick="addToCart('hotel', ${index}, '${hotel.name}', ${hotel.price}, '${hotel.city}')">Ajouter au panier</button>
                     </div>
                 </div>
             `);
