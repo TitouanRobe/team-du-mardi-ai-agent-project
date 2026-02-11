@@ -105,7 +105,7 @@ def search_restaurants(city: str, keyword: str = None) -> str:
 
 
 activity_agent = Agent(
-    model='gemini-2.0-flash',
+    model='gemini-2.5-flash',
     name='activity_agent',
     description="Guide touristique expert. Utilise search_activities et search_restaurants pour trouver des activités et restaurants dans une ville.",
     instruction="""

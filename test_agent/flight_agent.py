@@ -68,7 +68,7 @@ def search_flights(origin: str, destination: str = None, preferred_date: str = N
 
 flight_agent = Agent(
     name="FlightAgent",
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash",
     description="Expert en recherche de vols. Utilise l'outil search_flights pour trouver des vols selon origin, destination, date, budget et compagnie.",
     instruction="""
     Tu es un agent de recherche de vols.

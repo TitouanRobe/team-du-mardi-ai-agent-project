@@ -17,7 +17,7 @@ from .activity_agent import activity_agent
 # ═══════════════════════════════════════════════════════
 
 root_agent = Agent(
-    model='gemini-2.0-flash',
+    model='gemini-2.5-flash',
     name='Travel_Supervisor',
     description='Coordonne la planification de voyage complète.',
     instruction="""
@@ -71,7 +71,7 @@ root_agent = Agent(
 # Copies dédiées des sub-agents pour le refine_supervisor
 refine_flight_agent = Agent(
     name="RefineFlightAgent",
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash",
     description="Expert en recherche de vols. Utilise l'outil search_flights pour trouver des vols selon origin, destination, date, budget et compagnie.",
     instruction="""
     Tu es un agent de recherche de vols.
@@ -86,7 +86,7 @@ refine_flight_agent = Agent(
 )
 
 refine_hotel_agent = Agent(
-    model='gemini-2.0-flash',
+    model='gemini-2.5-flash',
     name='refine_hotel_agent',
     description="Expert en recherche d'hôtels. Utilise l'outil search_hotels pour trouver des hôtels selon la ville, le budget et les services.",
     instruction="""
@@ -101,7 +101,7 @@ refine_hotel_agent = Agent(
 )
 
 refine_activity_agent = Agent(
-    model='gemini-2.0-flash',
+    model='gemini-2.5-flash',
     name='refine_activity_agent',
     description="Guide touristique expert. Utilise search_activities et search_restaurants pour trouver des activités et restaurants.",
     instruction="""
@@ -127,7 +127,7 @@ refine_activity_agent = Agent(
 )
 
 refine_supervisor = Agent(
-    model='gemini-2.0-flash',
+    model='gemini-2.5-flash',
     name='Refine_Supervisor',
     description='Route les demandes de raffinement vers le bon agent spécialisé.',
     instruction="""

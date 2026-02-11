@@ -415,10 +415,15 @@ async def _run_supervisor_streaming(prompt_text: str, agent=None):
                     print(f"  TEXT [{author}]: {text_preview}")
                     full_text += part.text
 
-    # Fallback : si le sub-agent n'a pas généré de texte mais qu'on a des tool responses
-    if not full_text.strip() and tool_responses_text.strip():
-        print("WARN: full_text vide, utilisation des tool_responses comme fallback")
-        full_text = tool_responses_text.strip()
+    # Toujours ajouter les tool_responses au full_text pour que les parsers
+    # puissent matcher le format "- Nom à Ville pour Prix€/nuit (...)" même
+    # quand l'agent reformate tout en texte inline sans les "- " en préfixe.
+    if tool_responses_text.strip():
+        if full_text.strip():
+            full_text = full_text.rstrip() + "\n\n" + tool_responses_text.strip()
+        else:
+            print("WARN: full_text vide, utilisation des tool_responses comme fallback")
+            full_text = tool_responses_text.strip()
 
     print("\n" + "=" * 60)
     print(f"  SUPERVISOR - FIN ({event_count} events)")

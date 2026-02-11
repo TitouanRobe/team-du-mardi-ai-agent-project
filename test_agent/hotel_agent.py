@@ -68,7 +68,7 @@ def search_hotels(city: str, budget: float = 1000000, amenities: str = None,
 
 
 hotel_agent = Agent(
-    model='gemini-2.0-flash',
+    model='gemini-2.5-flash',
     name='hotel_agent',
     description="Expert en recherche d'hôtels. Utilise l'outil search_hotels pour trouver des hôtels selon la ville, le budget et les services.",
     instruction="""
