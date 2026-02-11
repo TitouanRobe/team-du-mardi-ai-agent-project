@@ -472,9 +472,11 @@ async def stream_search(
         if airline:
             prompt_parts.append(f"Compagnie preferee : {airline}.")
         if activities and activities.strip():
-            prompt_parts.append(f"Je cherche des activites/restaurants : {activities}.")
+            # Si l'utilisateur a spécifié quelque chose (ex: "restaurant"), on filtre
+            prompt_parts.append(f"Je cherche spécifiquement : {activities}.")
         else :
-            prompt_parts.append(f"Ajouter toutes les activités et restaurants.")
+            # Si le champ est vide, on veut TOUT (activités ET restaurants)
+            prompt_parts.append(f"Trouve-moi des activités touristiques ET des restaurants locaux.")
         if hotel_budget_max:
             prompt_parts.append(f"Budget hotel max : {hotel_budget_max}EUR/nuit.")
         if amenities and amenities.strip():
