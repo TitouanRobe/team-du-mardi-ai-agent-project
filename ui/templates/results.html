@@ -180,6 +180,7 @@
         // Variables globales
         const origin = "{{ origin or '' }}";
         const destination = "{{ destination or '' }}";
+        const departureDate = "{{ departure_date or '' }}";
         let chatHistory = [];
         let cart = [];
 
@@ -359,7 +360,7 @@
             scrollToBottom();
 
             // Appeler le backend pour raffinement
-            const eventSource = new EventSource(`/chat_refine?message=${encodeURIComponent(message)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`);
+            const eventSource = new EventSource(`/chat_refine?message=${encodeURIComponent(message)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&date=${encodeURIComponent(departureDate)}`);
 
             let agentMessage = '';
             let isFinished = false;

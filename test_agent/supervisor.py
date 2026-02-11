@@ -33,7 +33,12 @@ root_agent = Agent(
     - ACTIVITÉS mentionnées → search_activities(city, keyword)
     - RESTAURANTS mentionnés → search_restaurants(city, keyword)
     - HÔTEL mentionné → search_hotels(city, budget, amenities)
-    - DEMANDE COMPLÈTE de voyage → les 4 outils
+    - DEMANDE COMPLÈTE de voyage → SUIS CET ORDRE IMPÉRATIVEMENT :
+      1. search_flights(origin, destination, ...)
+      2. ATTENDS LE RÉSULTAT DU VOL.
+      3. Récupère la date d'arrivée du vol.
+      4. search_hotels(city, date_start=DATE_ARRIVEE_VOL, ...)
+      (Tu peux chercher activités/restaurants en parallèle des vols).
     
     ═══ FORMAT DE RÉPONSE ═══
     
@@ -77,8 +82,8 @@ refine_flight_agent = Agent(
     Tu es un agent de recherche de vols.
     
     Dès que tu reçois une demande, appelle search_flights immédiatement.
-    Extrais origin et destination du message. Si un budget, une date ou une compagnie
-    sont mentionnés, passe-les aussi.
+    Extrais origin et destination du message. 
+    IMPORTANT CONTEXTE DATE : Si une date est mentionnée dans le contexte (CONTEXTE : ...), utilise-la comme preferred_date, SAUF si l'utilisateur demande explicitement une autre date dans sa nouvelle DEMANDE DE RAFFINEMENT.
     
     Retourne le résultat de l'outil EXACTEMENT tel quel. Ne pose jamais de questions.
     """,
@@ -93,7 +98,8 @@ refine_hotel_agent = Agent(
     Tu es un agent de recherche d'hôtels.
     
     Dès que tu reçois une demande, appelle search_hotels immédiatement.
-    Extrais la ville de destination. Si un budget ou des services sont mentionnés, passe-les aussi.
+    Extrais la ville de destination.
+    IMPORTANT CONTEXTE DATE : Si une date est mentionnée dans le contexte (CONTEXTE : ...), utilise-la comme date_start, SAUF si l'utilisateur demande explicitement une autre date dans sa nouvelle DEMANDE DE RAFFINEMENT.
     
     Retourne le résultat de l'outil EXACTEMENT tel quel. Ne pose jamais de questions.
     """,

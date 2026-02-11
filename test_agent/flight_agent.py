@@ -39,8 +39,8 @@ def search_flights(origin: str, destination: str = None, preferred_date: str = N
             params.append(f"%{destination}%")
 
         if preferred_date:
-            query += " AND departure_time LIKE ?"
-            params.append(f"{preferred_date}%")
+            query += " AND departure_time >= ?"
+            params.append(f"{preferred_date}")
 
         if max_price:
             query += " AND price <= ?"

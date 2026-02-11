@@ -481,10 +481,9 @@ async def stream_search(
     request: Request,
     origin: str,
     destination: str,
-    preferences: str = None,
+    departure_date: str = None,
     budget_max: str = None,
     airline: str = None,
-    date: str = None,
     activities: str = None,
     hotel_budget_max: str = None,
     amenities: str = None
@@ -498,12 +497,25 @@ async def stream_search(
         # -- Construire UN SEUL prompt naturel pour le Supervisor --
         prompt_parts = [f"Je veux voyager de {origin} vers {destination}."]
 
-        if date:
-            prompt_parts.append(f"Date souhaitee : {date}.")
-        if budget_max:
-            prompt_parts.append(f"Budget vol max : {budget_max}EUR.")
-        if airline:
-            prompt_parts.append(f"Compagnie preferee : {airline}.")
+        if departure_date:
+            prompt_parts.append(f"Date souhaitee : {departure_date}.")
+            
+            # --- INSTRUCTION SÉQUENTIELLE OBLIGATOIRE (Si date fixée) ---
+            prompt_parts.append("""
+            IMPORTANT - STRATÉGIE D'EXECUTION OBLIGATOIRE :
+            ÉTAPE 1 : Appelle UNIQUEMENT search_flights (et activities/restaurants).
+            ÉTAPE 2 : ATTENDS le résultat de search_flights.
+            ÉTAPE 3 : Une fois que tu as la date d'arrivée du vol, appelle search_hotels avec CETTE date précise.
+            NE DEVINE PAS la date de l'hôtel. N'appelle PAS search_hotels tant que tu n'as pas le vol.
+            """)
+        else:
+            # --- INSTRUCTION FLEXIBLE (Si aucune date fixée) ---
+            prompt_parts.append("""
+            STRATÉGIE FLEXIBLE :
+            Aucune date précise n'est fixée. Cherche des vols et des hôtels disponibles globalement pour donner des idées.
+            N'hésite pas à proposer plusieurs options d'hôtels, même si les dates ne correspondent pas exactement à un vol précis.
+            """)
+        
         if activities and activities.strip():
             # Si l'utilisateur a spécifié quelque chose (ex: "restaurant"), on filtre
             prompt_parts.append(f"Je cherche spécifiquement : {activities}.")
@@ -516,8 +528,6 @@ async def stream_search(
             prompt_parts.append(f"Services hotel souhaites : {amenities}.")
         else:
             prompt_parts.append(f"Tous les hotels sont attendus.")
-        if preferences:
-            prompt_parts.append(f"Preferences : {preferences}.")
 
         prompt_text = " ".join(prompt_parts)
         print(f"PROMPT SUPERVISOR: {prompt_text}")
@@ -585,7 +595,8 @@ async def stream_search(
             "activities": act_list,
             "hotels": hotels_list,
             "origin": origin,
-            "destination": destination
+            "destination": destination,
+            "departure_date": departure_date
         })
 
         yield f"data: {json.dumps({'type': 'complete', 'html': final_html})}\n\n"
@@ -604,15 +615,18 @@ async def handle_search(
 
 
 @app.get("/chat_refine")
-async def chat_refine(request: Request, message: str, origin: str, destination: str):
-    print(f"\nCHAT REFINE: {message}")
+async def chat_refine(request: Request, message: str, origin: str, destination: str, date: str = None):
+    print(f"\nCHAT REFINE: {message} (Date ctx: {date})")
 
     async def event_generator():
         target = destination if destination else origin
 
+        date_context = f"Date du voyage initialement prévue : {date}." if date else "Aucune date précise n'est fixée."
+
         prompt_text = (
-            f"L'utilisateur voyage de {origin} vers {target}. "
-            f"Sa demande : \"{message}\". "
+            f"CONTEXTE : Voyage de {origin} vers {target}. {date_context} "
+            f"DEMANDE DE RAFFINEMENT : \"{message}\". "
+            f"Si c'est une demande d'hôtel ou de vol, utilise la date ci-dessus si pertinente. "
             f"Transfère au bon agent spécialisé."
         )
 
