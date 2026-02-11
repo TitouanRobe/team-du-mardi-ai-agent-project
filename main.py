@@ -106,23 +106,31 @@ def _parse_flights(text: str) -> list:
     """
     flights = []
 
-    # --- Regex principale (format exact de l'outil) ---
+    # --- DEDUPLICATION ---
+    unique_keys = set()
+    deduplicated_flights = []
+
+    # Regex principale
     flight_pattern = (
         r"-\s+(.+?)\s+\(([^)]+)\)\s*:\s*(.+?)\s*->\s*(.+?)\s*\|\s*"
         r"[dé]*[eé]?part\s+(.+?)\s+arriv[ée]+e?\s+(.+?)\s+pour\s+([\d.,]+)\s*€"
     )
     for m in re.finditer(flight_pattern, text, re.IGNORECASE):
-        flights.append({
+        item = {
             "airline": f"{m.group(1).strip()} ({m.group(2).strip()})",
             "origin": m.group(3).strip(),
             "destination": m.group(4).strip(),
             "departure": m.group(5).strip(),
             "arrival": m.group(6).strip(),
             "price": m.group(7).strip().replace(",", ".")
-        })
+        }
+        key = f"{item['airline']}|{item['departure']}|{item['arrival']}"
+        if key not in unique_keys:
+            unique_keys.add(key)
+            deduplicated_flights.append(item)
 
-    if flights:
-        return flights
+    if deduplicated_flights:
+        return deduplicated_flights
 
     # --- Fallback : regex plus souple (ligne par ligne) ---
     for line in text.split("\n"):
@@ -150,16 +158,22 @@ def _parse_flights(text: str) -> list:
         dep_match = re.search(r"[dé]*[eé]?part\s+(\S+(?:\s+\S+)?)", line, re.IGNORECASE)
         departure = dep_match.group(1).strip() if dep_match else "N/A"
 
-        flights.append({
+        item = {
             "airline": airline,
             "origin": "",
             "destination": "",
             "departure": departure,
             "arrival": "",
             "price": price
-        })
+        }
+        
+        # Clé un peu plus simple pour le fallback
+        key = f"{item['airline']}|{item['departure']}|{item['price']}"
+        if key not in unique_keys:
+            unique_keys.add(key)
+            deduplicated_flights.append(item)
 
-    return flights
+    return deduplicated_flights
 
 
 def _parse_activities(text: str) -> list:
@@ -169,6 +183,10 @@ def _parse_activities(text: str) -> list:
     Version robuste avec fallback.
     """
     activities = []
+
+    # --- DEDUPLICATION ---
+    unique_keys = set()
+    deduplicated_activities = []
 
     # --- Regex principale ---
     act_pattern = r"(Activit[ée]|Restaurant)\s*,\s*([^,]+?)\s*,\s*([\d.,]+)\s*€\s*,\s*(.*)"
@@ -180,15 +198,20 @@ def _parse_activities(text: str) -> list:
         else:
             act_type = "Restaurant"
 
-        activities.append({
+        item = {
             "type": act_type,
             "name": m.group(2).strip(),
             "price": m.group(3).strip().replace(",", "."),
             "description": m.group(4).strip()
-        })
+        }
+        
+        key = f"{item['name']}|{item['price']}"
+        if key not in unique_keys:
+            unique_keys.add(key)
+            deduplicated_activities.append(item)
 
-    if activities:
-        return activities
+    if deduplicated_activities:
+        return deduplicated_activities
 
     # --- Fallback : lignes avec un prix ---
     for line in text.split("\n"):
@@ -222,14 +245,18 @@ def _parse_activities(text: str) -> list:
         description = parts[1] if len(parts) > 1 else ""
 
         if name:
-            activities.append({
+            item = {
                 "type": act_type,
                 "name": name,
                 "price": price,
                 "description": description
-            })
+            }
+            key = f"{item['name']}|{item['price']}"
+            if key not in unique_keys:
+                unique_keys.add(key)
+                deduplicated_activities.append(item)
 
-    return activities
+    return deduplicated_activities
 
 
 def _parse_hotels(text: str) -> list:
@@ -238,48 +265,47 @@ def _parse_hotels(text: str) -> list:
     Format attendu: - Nom à Ville pour Prix€/nuit (Dispo: start au end, Services: ...)
     Version robuste avec fallback.
     """
-    hotels = []
+    # --- DEDUPLICATION ---
+    unique_keys = set()
+    deduplicated_hotels = []
 
-    # --- Regex principale (format exact de l'outil) ---
+    # Regex principale
     hotel_pattern = (
         r"-\s+(.+?)\s+[àa]\s+(.+?)\s+pour\s+([\d.,]+)\s*€/nuit\s*"
         r"\(Dispo\s*:\s*(.+?)\s+au\s+(.+?)\s*,\s*Services?\s*:\s*(.*?)\s*\)"
     )
     for m in re.finditer(hotel_pattern, text, re.IGNORECASE):
         services = m.group(6).strip()
-        # Nettoyer la parenthèse fermante résiduelle
-        services = services.rstrip(")")
+        if services.endswith(")"): services = services[:-1].strip()
 
-        hotels.append({
+        item = {
             "name": m.group(1).strip(),
             "city": m.group(2).strip(),
             "price": m.group(3).strip().replace(",", "."),
             "available_start": m.group(4).strip(),
             "available_end": m.group(5).strip(),
             "amenities": services
-        })
+        }
+        
+        key = f"{item['name']}|{item['city']}"
+        if key not in unique_keys:
+            unique_keys.add(key)
+            deduplicated_hotels.append(item)
 
-    if hotels:
-        return hotels
+    if deduplicated_hotels:
+        return deduplicated_hotels
 
-    # --- Fallback : regex plus souple ---
+    # --- Fallback ---
     for line in text.split("\n"):
         line = line.strip()
-        if not line.startswith("-"):
+        if not line.startswith("-") or "€/nuit" not in line:
             continue
 
-        # Exclure les lignes qui sont clairement des activités/restaurants
-        lower_line = line.lower()
-        if any(a in lower_line for a in ["activité", "activite", "restaurant", "musée", "musee", "visite"]):
-            if "hotel" not in lower_line and "€/nuit" not in lower_line:
-                continue
-
-        price_match = re.search(r"([\d.,]+)\s*€(?:/nuit)?", line)
+        price_match = re.search(r"([\d.,]+)\s*€/nuit", line)
         if not price_match:
             continue
 
         price = price_match.group(1).replace(",", ".")
-
         # Extraire le nom (entre "- " et " à " ou le premier séparateur)
         name_match = re.match(r"-\s+(.+?)(?:\s+[àa]\s+|\s+pour\s+|\s*\()", line)
         name = name_match.group(1).strip() if name_match else "Hôtel"
@@ -293,20 +319,27 @@ def _parse_hotels(text: str) -> list:
         available_start = date_match.group(1) if date_match else ""
         available_end = date_match.group(2) if date_match else ""
 
-        # Extraire les services
-        serv_match = re.search(r"Services?\s*:\s*(.+?)(?:\)|$)", line, re.IGNORECASE)
-        amenities = serv_match.group(1).strip().rstrip(")") if serv_match else ""
+        # Tentative d'extraction services
+        services = ""
+        serv_match = re.search(r"Services?\s*:\s*(.*?)(?:\)|$)", line, re.IGNORECASE)
+        if serv_match:
+            services = serv_match.group(1).strip()
 
-        hotels.append({
+        item = {
             "name": name,
             "city": city,
             "price": price,
             "available_start": available_start,
             "available_end": available_end,
-            "amenities": amenities
-        })
+            "amenities": services
+        }
+        
+        key = f"{item['name']}|{item['city']}"
+        if key not in unique_keys:
+            unique_keys.add(key)
+            deduplicated_hotels.append(item)
 
-    return hotels
+    return deduplicated_hotels
 
 
 async def _run_supervisor_streaming(prompt_text: str, agent=None):
