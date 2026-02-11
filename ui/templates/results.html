@@ -6,6 +6,7 @@
     <title>TravelAgent.ai - Votre Itinéraire</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/chat.css">
+    <link rel="stylesheet" href="/static/cart.css">
 </head>
 
 <body>
@@ -58,6 +59,9 @@
                     {% endif %}
                 </div>
                 <div class="card-price">{{ flight.price }}€</div>
+                <button class="add-to-cart-btn"
+                    onclick="addToCart('flight', {{ loop.index0 }}, '{{ flight.airline }}', {{ flight.price }}, '{{ flight.origin }} → {{ flight.destination }}<br>Départ: {{ flight.departure }}')">🛒
+                    Ajouter au panier</button>
             </div>
             {% endfor %}
             {% else %}
@@ -83,6 +87,9 @@
                     {% endif %}
                 </div>
                 <div class="card-price">{{ hotel.price }}€/nuit</div>
+                <button class="add-to-cart-btn"
+                    onclick="addToCart('hotel', {{ loop.index0 }}, '{{ hotel.name }}', {{ hotel.price }}, '{{ hotel.city }}<br>{{ hotel.available_start }} au {{ hotel.available_end }}')">🛒
+                    Ajouter au panier</button>
             </div>
             {% endfor %}
             {% else %}
@@ -103,11 +110,48 @@
                     {% endif %}
                 </div>
                 <div class="card-price">{{ act.price }}€</div>
+                <button class="add-to-cart-btn"
+                    onclick="addToCart('activity', {{ loop.index0 }}, '{{ act.name }}', {{ act.price }}, '{{ act.type }}')">🛒
+                    Ajouter au panier</button>
             </div>
             {% endfor %}
             {% else %}
             <p class="empty-msg">Aucune activité ou restaurant trouvé.</p>
             {% endif %}
+        </div>
+    </div>
+
+    <!-- Widget Panier -->
+    <div id="cart-widget">
+        <div id="cart-header" onclick="toggleCart()">
+            <h3>🛒 Mon Panier <span class="cart-badge" id="cart-count">0</span></h3>
+            <button id="cart-toggle">−</button>
+        </div>
+        <div id="cart-items">
+            <div class="cart-empty">
+                <div class="cart-empty-icon">🛒</div>
+                <p>Votre panier est vide</p>
+            </div>
+        </div>
+        <div id="cart-footer">
+            <div class="cart-total">
+                <span class="cart-total-label">Total</span>
+                <span class="cart-total-price" id="cart-total">0€</span>
+            </div>
+            <button id="cart-validate-btn" onclick="validateOrder()" disabled>Valider la commande</button>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation -->
+    <div id="confirmation-modal">
+        <div class="modal-content">
+            <div class="modal-icon">❓</div>
+            <h2>Confirmer la commande</h2>
+            <p>Voulez-vous procéder avec cette commande ?</p>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="confirmOrder()">Continuer</button>
+                <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Annuler</button>
+            </div>
         </div>
     </div>
 
@@ -137,6 +181,133 @@
         const origin = "{{ origin or '' }}";
         const destination = "{{ destination or '' }}";
         let chatHistory = [];
+        let cart = [];
+
+        // === CART FONCTIONS ===
+
+        function toggleCart() {
+            const widget = document.getElementById('cart-widget');
+            const toggle = document.getElementById('cart-toggle');
+            widget.classList.toggle('minimized');
+            toggle.textContent = widget.classList.contains('minimized') ? '+' : '−';
+        }
+
+        function addToCart(type, index, name, price, details) {
+            const itemId = `${type}-${index}`;
+
+            // Vérifier si l'item est déjà dans le panier
+            if (cart.find(item => item.id === itemId)) {
+                alert('Cet élément est déjà dans le panier !');
+                return;
+            }
+
+            const item = {
+                id: itemId,
+                type: type,
+                name: name,
+                price: parseFloat(price),
+                details: details
+            };
+
+            cart.push(item);
+            updateCartDisplay();
+
+            // Animation sur le bouton
+            const btn = event.target;
+            btn.classList.add('added');
+            btn.textContent = '✓ Ajouté';
+            setTimeout(() => {
+                btn.classList.remove('added');
+                btn.textContent = '🛒 Ajouter au panier';
+            }, 2000);
+        }
+
+        function removeFromCart(itemId) {
+            cart = cart.filter(item => item.id !== itemId);
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cart-items');
+            const cartCount = document.getElementById('cart-count');
+            const cartTotal = document.getElementById('cart-total');
+            const validateBtn = document.getElementById('cart-validate-btn');
+
+            // Mettre à jour le compteur
+            cartCount.textContent = cart.length;
+
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div class="cart-empty">
+                        <div class="cart-empty-icon">🛒</div>
+                        <p>Votre panier est vide</p>
+                    </div>
+                `;
+                validateBtn.disabled = true;
+                cartTotal.textContent = '0€';
+                return;
+            }
+
+            validateBtn.disabled = false;
+
+            // Calculer le total
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            cartTotal.textContent = total.toFixed(2) + '€';
+
+            // Afficher les items
+            const typeIcons = {
+                flight: '✈️',
+                hotel: '🏨',
+                activity: '🏛️'
+            };
+
+            const typeLabels = {
+                flight: 'Vol',
+                hotel: 'Hôtel',
+                activity: 'Activité'
+            };
+
+            cartItems.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <div class="cart-item-type">${typeIcons[item.type]} ${typeLabels[item.type]}</div>
+                        <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-details">${item.details}</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                        <div class="cart-item-price">${item.price.toFixed(2)}€</div>
+                        <button class="cart-item-remove" onclick="removeFromCart('${item.id}')">×</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function validateOrder() {
+            if (cart.length === 0) return;
+
+            const modal = document.getElementById('confirmation-modal');
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('confirmation-modal');
+            modal.classList.remove('show');
+        }
+
+        function confirmOrder() {
+            console.log('Commande validée:', cart);
+
+            // Simuler une redirection vers la page de commande
+            alert('Redirection vers la page de paiement...');
+
+            // Vider le panier
+            cart = [];
+            updateCartDisplay();
+            closeModal();
+
+            // Note: Vous pouvez décommenter la ligne suivante pour rediriger vers une vraie page
+            // window.location.href = '/order';
+        }
 
         function openTab(evt, tabName) {
             var i, tabcontent, tablinks;
@@ -286,7 +457,7 @@
             }
 
             console.log("Mise à jour des vols:", flights.length);
-            updateTab('vols', flights, (flight) => `
+            updateTab('vols', flights, (flight, index) => `
                 <div class="result-card flight-card">
                     <div class="card-info">
                         <strong>${flight.airline || 'Vol'}</strong>
@@ -294,7 +465,10 @@
                         <p>🕒 Départ : ${flight.departure || 'N/A'}</p>
                         ${flight.arrival ? `<p>🕐 Arrivée : ${flight.arrival}</p>` : ''}
                     </div>
-                    <div class="card-price">${flight.price}€</div>
+                    <div>
+                        <div class="card-price">${flight.price}€</div>
+                        <button class="add-to-cart-btn" onclick="addToCart('flight', ${index}, '${flight.airline || 'Vol'}', ${flight.price}, '${flight.origin} -> ${flight.destination}')">🛒 Ajouter au panier</button>
+                    </div>
                 </div>
             `);
             const tabFlights = document.getElementById('tab-flights');
@@ -308,7 +482,7 @@
             }
 
             console.log("Mise à jour des hôtels:", hotels.length);
-            updateTab('hotels', hotels, (hotel) => `
+            updateTab('hotels', hotels, (hotel, index) => `
                 <div class="result-card hotel-card">
                     <div class="card-info">
                         <strong>${hotel.name}</strong>
@@ -316,7 +490,10 @@
                         ${hotel.amenities ? `<p>🛎️ ${hotel.amenities}</p>` : ''}
                         ${hotel.available_start && hotel.available_end ? `<p>📅 Disponible du ${hotel.available_start} au ${hotel.available_end}</p>` : ''}
                     </div>
-                    <div class="card-price">${hotel.price}€/nuit</div>
+                    <div>
+                        <div class="card-price">${hotel.price}€/nuit</div>
+                        <button class="add-to-cart-btn" onclick="addToCart('hotel', ${index}, '${hotel.name}', ${hotel.price}, '${hotel.city}')">🛒 Ajouter au panier</button>
+                    </div>
                 </div>
             `);
             const tabHotels = document.getElementById('tab-hotels');
@@ -330,14 +507,17 @@
             }
 
             console.log("Mise à jour des activités:", activities.length);
-            updateTab('activites', activities, (act) => `
+            updateTab('activites', activities, (act, index) => `
                 <div class="result-card activity-card">
                     <div class="card-tag">${act.type || 'Activité'}</div>
                     <div class="card-info">
                         <strong>${act.name}</strong>
                         ${act.description ? `<p>${act.description}</p>` : ''}
                     </div>
-                    <div class="card-price">${act.price}€</div>
+                    <div>
+                        <div class="card-price">${act.price}€</div>
+                        <button class="add-to-cart-btn" onclick="addToCart('activity', ${index}, '${act.name}', ${act.price}, '${act.type}')">🛒 Ajouter au panier</button>
+                    </div>
                 </div>
             `);
             const tabActivities = document.getElementById('tab-activities');

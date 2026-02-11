@@ -144,4 +144,47 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleOptions.classList.toggle('active');
         };
     }
+
+    // --- 5. CAROUSEL D'IMAGES ---
+    let currentSlideIndex = 0;
+    let carouselInterval;
+
+    function showSlide(index) {
+        const images = document.querySelectorAll('.carousel-image');
+        const dots = document.querySelectorAll('.carousel-dots .dot');
+        
+        if (!images.length) return;
+        
+        // Wrap around
+        if (index >= images.length) currentSlideIndex = 0;
+        else if (index < 0) currentSlideIndex = images.length - 1;
+        else currentSlideIndex = index;
+        
+        // Update images
+        images.forEach((img, i) => {
+            img.classList.toggle('active', i === currentSlideIndex);
+        });
+        
+        // Update dots
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentSlideIndex);
+        });
+    }
+
+    function nextSlide() {
+        showSlide(currentSlideIndex + 1);
+    }
+
+    // Make currentSlide available globally for onclick handlers
+    window.currentSlide = function(index) {
+        clearInterval(carouselInterval);
+        showSlide(index);
+        // Restart auto-rotation after manual click
+        carouselInterval = setInterval(nextSlide, 4000);
+    };
+
+    // Start auto-rotation
+    if (document.querySelector('.carousel')) {
+        carouselInterval = setInterval(nextSlide, 4000);
+    }
 });

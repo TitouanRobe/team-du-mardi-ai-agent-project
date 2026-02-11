@@ -57,7 +57,20 @@
         <div class="main-card">
 
             <div class="card-image-container">
-                <img src="/static/images/Londres.png" alt="Big Ben Londres">
+                <div class="carousel">
+                    <div class="carousel-images">
+                        <img src="/static/images/Londres.png" alt="Londres" class="carousel-image active">
+                        <img src="/static/images/Tokyo.png" alt="Tokyo" class="carousel-image">
+                        <img src="/static/images/rome.png" alt="rome" class="carousel-image">
+                        <img src="/static/images/Paris.png" alt="Paris" class="carousel-image">
+                    </div>
+                    <div class="carousel-dots">
+                        <span class="dot active" onclick="currentSlide(0)"></span>
+                        <span class="dot" onclick="currentSlide(1)"></span>
+                        <span class="dot" onclick="currentSlide(2)"></span>
+                        <span class="dot" onclick="currentSlide(3)"></span>
+                    </div>
+                </div>
             </div>
 
             <div class="card-content">
