@@ -9,12 +9,53 @@ from .activity_agent import search_activities, search_restaurants
 from .flight_agent import flight_agent
 from .hotel_agent import hotel_agent
 from .activity_agent import activity_agent
-
+import os
+import sqlite3
 
 # ═══════════════════════════════════════════════════════
 # AGENT 1 : root_agent (recherche initiale)
 # Utilise les tools DIRECTEMENT pour appeler les 4 en parallèle
 # ═══════════════════════════════════════════════════════
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MEMORY_DB_PATH = os.path.join(BASE_DIR, '..', 'data', 'memory.db')
+
+def save_memory(preferences: str) -> str:
+    """
+    Sauvegarde une ou plusieurs préférences (séparées par des virgules).
+    Exemple d'entrée : "cuisine japonaise, budget serré, terrasse"
+    """
+    saved_items = []
+    ignored_items = []
+
+    try:
+        # 1. On nettoie et on découpe la chaîne (ex: "Japonais, Pas cher" -> ["Japonais", "Pas cher"])
+        # On enlève les espaces inutiles autour
+        items = [p.strip().lower() for p in preferences.split(',') if p.strip()]
+
+        conn = sqlite3.connect(MEMORY_DB_PATH)
+        cursor = conn.cursor()
+
+        for item in items:
+            cursor.execute("SELECT 1 FROM memory WHERE preferences = ?", (item,))
+            if not cursor.fetchone():
+                cursor.execute('INSERT INTO memory (preferences) VALUES (?)', (item,))
+                saved_items.append(item)
+            else:
+                ignored_items.append(item)
+
+        conn.commit()
+        conn.close()
+
+        msg = ""
+        if saved_items:
+            msg += f"Sauvegardé : {', '.join(saved_items)}. "
+        if ignored_items:
+            msg += f"Déjà connu : {', '.join(ignored_items)}."
+       
+        return msg if msg else "Rien à sauvegarder."
+
+    except Exception as e:
+        return f"Erreur lors de la sauvegarde multiple : {e}"
 
 root_agent = Agent(
     model='gemini-2.5-flash',
@@ -154,6 +195,13 @@ refine_supervisor = Agent(
     - Tu TRANSFÈRES immédiatement, sans poser de questions
     - Tu ne réponds JAMAIS toi-même, tu délègues TOUJOURS
     - UN SEUL transfert par demande
+
+    ═══ TRES IMPORTANT ═══
+    - Tu DOIS absolument sauvegarder en mémoire les préférences du user vis à vis des restaurants et des activités
+    - Pour sauvegarder en mémoire tu DOIS utiliser l'outil "save_memory", par exemple si un user demande un restaurant vegan tu enregistre vegan dans la mémoire
+    - Cette esction est ESSENTIELLE et doit être faites A CHAQUE FOIS !
+    
     """,
-    sub_agents=[refine_flight_agent, refine_hotel_agent, refine_activity_agent]
+    sub_agents=[refine_flight_agent, refine_hotel_agent, refine_activity_agent],
+    tools=[save_memory]
 )
