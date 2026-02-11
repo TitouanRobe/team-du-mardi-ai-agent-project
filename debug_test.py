@@ -26,7 +26,7 @@ except Exception as e:
     exit(1)
 
 try:
-    from test_agent.supervisor import root_agent
+    from test_agent.agent import root_agent
     print(f"  ✅ supervisor OK: agent={root_agent.name}")
     print(f"     sub_agents: {[a.name for a in root_agent.sub_agents]}")
 except Exception as e:

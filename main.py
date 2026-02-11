@@ -18,7 +18,7 @@ sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 load_dotenv()
 
 # --- MILESTONE 3 : On importe les deux supervisors ---
-from test_agent.supervisor import root_agent, refine_supervisor
+from test_agent.agent import root_agent, refine_supervisor
 
 from google.adk.runners import Runner, RunConfig
 from google.adk.sessions import InMemorySessionService
